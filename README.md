@@ -1,6 +1,6 @@
 # bot-morshu
 
-Bot-morshu is a Discord bot that synthesizes speech in Morshu's voice using a text-to-speech engine based on [MorshuTalk](https://github.com/n0spaces/MorshuTalk) by [n0spaces](https://github.com/n0spaces). The bot accepts arbitrary text input and generates audio by intelligently stitching phoneme segments from Morshu's original Zelda CD-i dialogue. This project is based on the [discord-bot-template](https://github.com/Lempki/discord-bot-template) repository, which provides the core architecture.
+This is a Discord bot that synthesizes speech in Morshu's voice using a text-to-speech engine based on [MorshuTalk](https://github.com/n0spaces/MorshuTalk) by [n0spaces](https://github.com/n0spaces). The bot accepts arbitrary text input and generates audio by intelligently stitching phoneme segments from Morshu's original Zelda CD-i dialogue. This project is based on the [discord-bot-template](https://github.com/Lempki/discord-bot-template) repository, which provides the core architecture.
 
 ## Commands
 
@@ -55,7 +55,7 @@ chmod +x setup.sh
 
 The script creates a `.venv` virtual environment if one does not already exist. It installs all required dependencies and copies `.env.example` to `.env` on the first run. You must edit `.env` and set your `DISCORD_TOKEN` before starting the bot.
 
-If you prefer to perform the setup manually, follow these steps.
+If you prefer to perform the setup manually, follow these steps:
 
 ```bash
 git clone https://github.com/Lempki/bot-morshu.git
