@@ -81,25 +81,25 @@ The base configuration variables are documented in the [discord-bot-template](ht
 
 ```
 bot-morshu/
-├── bot.py              # Entry point
-├── config.py           # Environment variable reader
-├── localization.py     # Strings dataclass and locale presets
+├── bot.py              # Entry point.
+├── config.py           # Environment variable reader. Extend this file to add new configuration keys.
+├── localization.py     # Strings dataclass and locale presets. Define new languages here.
 ├── cogs/
-│   ├── morshu.py       # Morshu TTS commands (!tts, !morshu)
-│   ├── voice.py        # Voice channel commands (join, leave, skip)
-│   └── youtube.py      # YouTube audio queue with playlist support
-├── morshutalk/         # TTS engine adapted from MorshuTalk by n0spaces
-│   ├── morshu.py       # Core phoneme matching and audio stitching logic
-│   ├── g2p.py          # Grapheme-to-phoneme conversion wrapper
-│   └── morshu.wav      # Source audio file containing Morshu's CD-i dialogue
+│   ├── morshu.py       # Morshu TTS commands (!tts, !morshu).
+│   ├── voice.py        # Voice-related commands such as join, leave, and skip.
+│   └── youtube.py      # YouTube audio queue with playlist support.
+├── morshutalk/         # TTS engine adapted from MorshuTalk by n0spaces.
+│   ├── morshu.py       # Core phoneme matching and audio stitching logic.
+│   ├── g2p.py          # Grapheme-to-phoneme conversion wrapper.
+│   └── morshu.wav      # Source audio file containing Morshu's CD-i dialogue.
 ├── utils/
-│   ├── audio.py        # Audio helpers and playback utilities
-│   ├── checks.py       # Custom command checks
-│   └── logging.py      # Timestamped console logging helper
+│   ├── audio.py        # Audio helpers including YouTubeDLSource and playback utilities.
+│   ├── checks.py       # Custom command checks such as in_bot_channel().
+│   └── logging.py      # Timestamped console logging helper.
 ├── assets/audio/       # Directory for audio assets. Managed via Git LFS.
-├── .env.example        # Template for environment variables
-├── setup.bat           # Windows setup script
-├── setup.sh            # macOS and Linux setup script
+├── .env.example        # Template for environment variables.
+├── setup.bat           # Windows setup script.
+├── setup.sh            # macOS and Linux setup script.
 └── requirements.txt
 ```
 
