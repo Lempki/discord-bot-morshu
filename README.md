@@ -1,76 +1,86 @@
-# morshu
+# bot-morshu
 
-A Discord bot that synthesizes speech in Morshu's voice using a text-to-speech engine built on top of [MorshuTalk](https://github.com/n0spaces/MorshuTalk) by [n0spaces](https://github.com/n0spaces). Send any text and the bot generates audio by intelligently stitching phoneme segments from Morshu's original Zelda CD-i dialogue.
-
-Built on [discord-bot-template](https://github.com/Lempki/discord-bot-template).
+Bot-morshu is a Discord bot that synthesizes speech in Morshu's voice using a text-to-speech engine based on [MorshuTalk](https://github.com/n0spaces/MorshuTalk) by [n0spaces](https://github.com/n0spaces). The bot accepts arbitrary text input and generates audio by intelligently stitching phoneme segments from Morshu's original Zelda CD-i dialogue. This project is based on the [discord-bot-template](https://github.com/Lempki/discord-bot-template) repository, which provides the core architecture.
 
 ## Commands
 
+All commands use `!` as the default prefix.
+
 | Command | Alias | Description |
 |---|---|---|
-| `!tts <text>` | `!generate <text>` | Generates a WAV file and sends it as a Discord attachment. |
-| `!morshu <text>` | `!speak <text>` | Joins your voice channel and plays the generated audio. |
+| `!tts <text>` | `!generate <text>` | Generates a WAV file from the given text and sends it as a Discord file attachment. |
+| `!morshu <text>` | `!speak <text>` | Joins your current voice channel and plays the generated audio. The audio file is removed automatically after playback completes. |
 
 ## Prerequisites
 
-- Python 3.10 or newer.
-- [FFmpeg](https://ffmpeg.org/) installed and available in your system PATH, or set `FFMPEG_PATH` in `.env`.
+* You must have Python version 3.10 or newer installed on your system.
+* You must install [FFmpeg](https://ffmpeg.org/) and ensure that it is available in your system PATH. You may alternatively define a custom path using the `FFMPEG_PATH` environment variable.
 
+  On Windows, install FFmpeg with the following command.
   ```
-  winget install ffmpeg        # Windows
-  brew install ffmpeg          # macOS
-  sudo apt install ffmpeg      # Debian/Ubuntu
+  winget install ffmpeg
   ```
 
-- [Git LFS](https://git-lfs.com/) if you plan to version control audio assets.
+  On macOS, install FFmpeg with the following command.
+  ```
+  brew install ffmpeg
+  ```
+
+  On Debian or Ubuntu, install FFmpeg with the following command.
+  ```
+  sudo apt install ffmpeg
+  ```
+
+* You must install [Git LFS](https://git-lfs.com/) because the repository uses it to manage the source audio file located in `morshutalk/`.
 
 ## Setup
 
-Run the included setup script to prepare the project in a single step.
+You can use the included setup script to prepare the project in a single step.
 
-**Windows:**
+On Windows, run the following command.
+
 ```
 setup.bat
 ```
 
-**macOS / Linux:**
+On macOS or Linux, run the following commands.
+
 ```
-chmod +x setup.sh && ./setup.sh
+chmod +x setup.sh
+./setup.sh
 ```
 
-The script creates a `.venv` virtual environment, installs all dependencies, and copies `.env.example` to `.env` on the first run. Edit `.env` and set your `DISCORD_TOKEN` before starting the bot.
+The script creates a `.venv` virtual environment if one does not already exist. It installs all required dependencies and copies `.env.example` to `.env` on the first run. You must edit `.env` and set your `DISCORD_TOKEN` before starting the bot.
 
-If you prefer to set up manually:
+If you prefer to perform the setup manually, follow these steps.
 
 ```bash
+git clone https://github.com/Lempki/bot-morshu.git
+cd bot-morshu
 python -m venv .venv
-source .venv/bin/activate      # Windows: .venv\Scripts\activate
+source .venv/bin/activate
+# On Windows use: .venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env
 # Edit .env and set DISCORD_TOKEN and other values as needed
 python bot.py
 ```
 
-> **Note:** On the first command invocation, `g2p_en` will download NLTK data (~30 seconds). Subsequent calls are instant.
+On the first command invocation after startup, the bot will download the required NLTK language data in the background. This process takes approximately 30 seconds and only occurs once.
 
 ## Configuration
 
-All configuration is read from environment variables or from a `.env` file in the project root.
+The base configuration variables are documented in the [discord-bot-template](https://github.com/Lempki/discord-bot-template) repository. The following variables are either specific to bot-morshu or have recommended values that differ from the defaults.
 
-| Variable | Required | Default | Description |
-|---|---|---|---|
-| `DISCORD_TOKEN` | Yes | — | The Discord bot token. |
-| `COMMAND_PREFIX` | No | `!` | The prefix used for bot commands. |
-| `FFMPEG_PATH` | No | system PATH | Absolute path to the FFmpeg binary. |
-| `COGS_TO_LOAD` | No | `example` | Comma-separated list of cog modules to load. Set to `morshu` or `voice,morshu` etc. |
-| `BOT_CHANNEL_ID` | No | — | Restricts command usage to a specific text channel ID. |
-| `AUTO_ROLE_NAME` | No | — | Name of the role assigned when a member joins. |
-| `LOCALE` | No | `silent` | Language for bot messages. Use `en` to enable responses, or `silent` to suppress them. |
+| Variable | Recommended value | Description |
+|---|---|---|
+| `COGS_TO_LOAD` | `morshu` | This variable defines which cogs are loaded. Set it to `voice,morshu` if you also want the standalone voice channel commands. |
+| `LOCALE` | `en` | This variable enables the English locale so that the bot sends status messages such as generation progress and error notifications. |
 
 ## Project structure
 
 ```
-morshu/
+bot-morshu/
 ├── bot.py              # Entry point
 ├── config.py           # Environment variable reader
 ├── localization.py     # Strings dataclass and locale presets
@@ -78,15 +88,15 @@ morshu/
 │   ├── morshu.py       # Morshu TTS commands (!tts, !morshu)
 │   ├── voice.py        # Voice channel commands (join, leave, skip)
 │   └── youtube.py      # YouTube audio queue with playlist support
-├── morshutalk/         # TTS engine (from MorshuTalk by n0spaces)
-│   ├── morshu.py       # Core phoneme matching and audio stitching
-│   ├── g2p.py          # Grapheme-to-phoneme wrapper
-│   └── morshu.wav      # Source audio (Morshu's CD-i dialogue)
+├── morshutalk/         # TTS engine adapted from MorshuTalk by n0spaces
+│   ├── morshu.py       # Core phoneme matching and audio stitching logic
+│   ├── g2p.py          # Grapheme-to-phoneme conversion wrapper
+│   └── morshu.wav      # Source audio file containing Morshu's CD-i dialogue
 ├── utils/
 │   ├── audio.py        # Audio helpers and playback utilities
 │   ├── checks.py       # Custom command checks
 │   └── logging.py      # Timestamped console logging helper
-├── assets/audio/       # Directory for audio assets (Git LFS managed)
+├── assets/audio/       # Directory for audio assets. Managed via Git LFS.
 ├── .env.example        # Template for environment variables
 ├── setup.bat           # Windows setup script
 ├── setup.sh            # macOS and Linux setup script
@@ -95,4 +105,4 @@ morshu/
 
 ## Credits
 
-The TTS engine (`morshutalk/`) is based on [MorshuTalk](https://github.com/n0spaces/MorshuTalk) by [n0spaces](https://github.com/n0spaces), released under the [MIT License](https://github.com/n0spaces/MorshuTalk/blob/main/LICENSE.txt).
+The TTS engine in `morshutalk/` is adapted from [MorshuTalk](https://github.com/n0spaces/MorshuTalk) by [n0spaces](https://github.com/n0spaces), released under the [MIT License](https://github.com/n0spaces/MorshuTalk/blob/main/LICENSE.txt).
