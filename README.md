@@ -69,8 +69,6 @@ cp .env.example .env
 python bot.py
 ```
 
-On the first command invocation after startup, the bot will download the required NLTK language data in the background. This process takes approximately 30 seconds and only occurs once.
-
 ## Configuration
 
 The base configuration variables are documented in the [discord-bot-template](https://github.com/Lempki/discord-bot-template) repository. The following variables are either specific to bot-morshu or have recommended values that differ from the defaults.
