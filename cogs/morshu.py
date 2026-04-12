@@ -7,6 +7,7 @@ from discord.ext import commands
 from utils.checks import in_bot_channel
 from utils.logging import log
 from morshutalk import Morshu
+from morshutalk.morshu import _ensure_loaded
 
 
 class MorshuCog(commands.Cog, name="Morshu"):
@@ -106,6 +107,9 @@ class MorshuCog(commands.Cog, name="Morshu"):
 
     @commands.Cog.listener()
     async def on_ready(self):
+        # Preload the g2p model and source WAV in a background thread so the
+        # first !tts / !morshu command doesn't stall waiting for NLTK data.
+        asyncio.get_event_loop().run_in_executor(None, _ensure_loaded)
         print(f"[{self.__class__.__name__}] loaded.")
 
 
