@@ -16,20 +16,23 @@ All commands use `!` as the default prefix.
 * You must have Python version 3.10 or newer installed on your system.
 * You must install [FFmpeg](https://ffmpeg.org/) and ensure that it is available in your system PATH. You may alternatively define a custom path using the `FFMPEG_PATH` environment variable.
 
-  On Windows, install FFmpeg with the following command.
-  ```
-  winget install ffmpeg
-  ```
+  * On Windows, install FFmpeg with the following command:
 
-  On macOS, install FFmpeg with the following command.
-  ```
-  brew install ffmpeg
-  ```
+    ```
+    winget install ffmpeg
+    ```
 
-  On Debian or Ubuntu, install FFmpeg with the following command.
-  ```
-  sudo apt install ffmpeg
-  ```
+  * On macOS, install FFmpeg with the following command:
+
+    ```
+    brew install ffmpeg
+    ```
+
+  * On Debian or Ubuntu, install FFmpeg with the following command:
+  
+    ```
+    sudo apt install ffmpeg
+    ```
 
 * You must install [Git LFS](https://git-lfs.com/) because the repository uses it to manage the source audio file located in `morshutalk/`.
 
