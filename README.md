@@ -1,4 +1,4 @@
-# bot-morshu
+# discord-bot-morshu
 
 This is a Discord bot that synthesizes speech in Morshu's voice using a text-to-speech engine based on [MorshuTalk](https://github.com/n0spaces/MorshuTalk) by [n0spaces](https://github.com/n0spaces). The bot accepts arbitrary text input and generates audio by intelligently stitching phoneme segments from Morshu's original Zelda CD-i dialogue. This project is based on the [discord-bot-template](https://github.com/Lempki/discord-bot-template) repository, which provides the core architecture.
 
