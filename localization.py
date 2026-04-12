@@ -55,6 +55,10 @@ class Strings:
     # {prefix}
     play_usage: str = ""
 
+    # --- Morshu cog ---
+    morshu_generating: str = ""
+    morshu_empty: str = ""
+
 
 # ---------------------------------------------------------------------------
 # Built-in locale presets
@@ -76,6 +80,8 @@ ENGLISH = Strings(
     now_playing="Now playing `{title}` in `{channel}`.",
     load_error="Failed to load audio. Try again, `{user}`.",
     play_usage="Provide a URL: `{prefix}play <url>`",
+    morshu_generating="Generating...",
+    morshu_empty="Could not generate audio for that input.",
 )
 
 #: Map LOCALE env var values to Strings instances.
