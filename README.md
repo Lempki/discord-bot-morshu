@@ -4,12 +4,12 @@ This is a Discord bot that synthesizes speech in Morshu's voice using a text-to-
 
 ## Commands
 
-All commands use `!` as the default prefix.
+All commands use `/` as the default prefix.
 
 | Command | Alias | Description |
 |---|---|---|
-| `!tts <text>` | `!generate <text>` | Generates a WAV file from the given text and sends it as a Discord file attachment. |
-| `!morshu <text>` | `!speak <text>` | Joins your current voice channel and plays the generated audio. The audio file is removed automatically after playback completes. |
+| `/tts <text>` | `/generate <text>` | Generates a WAV file from the given text and sends it as a Discord file attachment. |
+| `/morshu <text>` | `/speak <text>` | Joins your current voice channel and plays the generated audio. The audio file is removed automatically after playback completes. |
 
 ## Prerequisites
 
@@ -53,7 +53,7 @@ chmod +x setup.sh
 ./setup.sh
 ```
 
-The script creates a `.venv` virtual environment if one does not already exist. It installs all required dependencies and copies `.env.example` to `.env` on the first run. You must edit `.env` and set your `DISCORD_TOKEN` before starting the bot.
+The script creates a `.venv` virtual environment if one does not already exist. It installs all required dependencies and copies `.env.template` to `.env` on the first run. You must edit `.env` and set your `DISCORD_TOKEN` before starting the bot.
 
 If you prefer to perform the setup manually, follow these steps:
 
@@ -64,7 +64,7 @@ python -m venv .venv
 source .venv/bin/activate
 # On Windows use: .venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env
+cp .env.template .env
 # Edit .env and set DISCORD_TOKEN and other values as needed
 python bot.py
 ```
@@ -98,7 +98,7 @@ bot-morshu/
 │   ├── checks.py       # Custom command checks such as in_bot_channel().
 │   └── logging.py      # Timestamped console logging helper.
 ├── assets/audio/       # Directory for audio assets. Managed via Git LFS.
-├── .env.example        # Template for environment variables.
+├── .env.template       # Template for environment variables.
 ├── setup.bat           # Windows setup script.
 ├── setup.sh            # macOS and Linux setup script.
 └── requirements.txt
