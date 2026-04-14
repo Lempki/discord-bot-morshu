@@ -4,12 +4,10 @@ This is a Discord bot that synthesizes speech in Morshu's voice using a text-to-
 
 ## Commands
 
-All commands use `/` as the default prefix.
-
-| Command | Alias | Description |
-|---|---|---|
-| `/generate <text>` | `/tts <text>` | Generates a WAV file from the given text and sends it as a Discord file attachment. |
-| `/morshu <text>` | `/speak <text>` | Joins your current voice channel and plays the generated audio. The audio file is removed automatically after playback completes. |
+| Command | Description |
+|---|---|
+| `/generate <text>` | Generates a WAV file from the given text and sends it as a Discord file attachment. |
+| `/morshu <text>` | Joins your current voice channel and plays the generated audio. The audio file is removed automatically after playback completes. |
 
 ## Prerequisites
 
@@ -83,12 +81,12 @@ python bot.py
 
 ## Configuration
 
-The base configuration variables are documented in the [discord-bot-template](https://github.com/Lempki/discord-bot-template) repository. The following variables are either specific to discord-bot-morshu or have recommended values that differ from the defaults.
+The base configuration variables are documented in the [discord-bot-template](https://github.com/Lempki/discord-bot-template) repository. The following variables are either specific to discord-bot-morshu or behave differently from the template defaults.
 
-| Variable | Recommended value | Description |
+| Variable | Default | Description |
 |---|---|---|
-| `COGS_TO_LOAD` | `morshu` | This variable defines which cogs are loaded. Set it to `voice,morshu` if you also want the standalone voice channel commands. |
-| `LOCALE` | `en` | This variable enables the English locale so that the bot sends status messages such as generation progress and error notifications. |
+| `COGS_TO_LOAD` | `template` | Cogs to load at startup. Set to `morshu` for TTS-only mode, or `voice,morshu` to also include standalone voice channel commands. |
+| `LOCALE` | `silent` | Bot message language. Set to `en` to enable status messages such as generation progress and error notifications. |
 
 ## Project structure
 
@@ -98,7 +96,7 @@ discord-bot-morshu/
 ├── config.py           # Environment variable reader. Extend this file to add new configuration keys.
 ├── localization.py     # Strings dataclass and locale presets. Define new languages here.
 ├── cogs/
-│   ├── morshu.py       # Morshu TTS commands (/tts, /morshu).
+│   ├── morshu.py       # Morshu TTS commands (/generate, /morshu).
 │   ├── voice.py        # Voice-related commands such as join, leave, and skip.
 │   └── youtube.py      # YouTube audio queue with playlist support.
 ├── morshutalk/         # TTS engine adapted from MorshuTalk by n0spaces.
