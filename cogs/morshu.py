@@ -24,21 +24,27 @@ class MorshuCog(commands.Cog, name="Morshu"):
         segment.export(buf, format="wav")
         return buf.getvalue()
 
+    async def _followup(self, interaction: discord.Interaction, template: str, **kwargs) -> bool:
+        """Send a followup if the template is non-empty. Returns True if sent."""
+        if not (msg := template.format(**kwargs) if kwargs else template):
+            return False
+        await interaction.followup.send(msg)
+        return True
+
     @app_commands.command(name="generate")
     @in_bot_channel()
     async def tts(self, interaction: discord.Interaction, text: str):
         """Generate a Morshu TTS WAV and send as a file attachment."""
         await interaction.response.defer()
         s = self.bot.strings
-        if msg := s.morshu_generating:
-            await interaction.followup.send(msg)
+        replied = await self._followup(interaction, s.morshu_generating)
 
         loop = asyncio.get_running_loop()
         wav_bytes = await loop.run_in_executor(None, self._generate_audio, text)
 
         if not wav_bytes:
-            if msg := s.morshu_empty:
-                await interaction.followup.send(msg)
+            if not await self._followup(interaction, s.morshu_empty) and not replied:
+                await interaction.delete_original_response()
             return
 
         await interaction.followup.send(file=discord.File(io.BytesIO(wav_bytes), filename="morshu.wav"))
@@ -50,32 +56,32 @@ class MorshuCog(commands.Cog, name="Morshu"):
         """Join the user's voice channel and play Morshu TTS audio."""
         await interaction.response.defer()
         s = self.bot.strings
+        replied = False
+
         if interaction.user.voice is None:
-            if msg := s.not_in_voice.format(user=interaction.user):
-                await interaction.followup.send(msg)
+            replied = await self._followup(interaction, s.not_in_voice, user=interaction.user)
+            if not replied:
+                await interaction.delete_original_response()
             return
 
-        if msg := s.morshu_generating:
-            await interaction.followup.send(msg)
+        replied = await self._followup(interaction, s.morshu_generating)
 
         loop = asyncio.get_running_loop()
         wav_bytes = await loop.run_in_executor(None, self._generate_audio, text)
 
         if not wav_bytes:
-            if msg := s.morshu_empty:
-                await interaction.followup.send(msg)
+            if not await self._followup(interaction, s.morshu_empty) and not replied:
+                await interaction.delete_original_response()
             return
 
         target = interaction.user.voice.channel
         vc = interaction.guild.voice_client
         if vc is None:
             vc = await target.connect()
-            if msg := s.joined_voice.format(channel=target):
-                await interaction.followup.send(msg)
+            replied = await self._followup(interaction, s.joined_voice, channel=target) or replied
         elif vc.channel != target:
             await vc.move_to(target)
-            if msg := s.moved_voice.format(channel=target):
-                await interaction.followup.send(msg)
+            replied = await self._followup(interaction, s.moved_voice, channel=target) or replied
 
         if vc.is_playing():
             vc.stop()
@@ -99,6 +105,8 @@ class MorshuCog(commands.Cog, name="Morshu"):
             after=after_playback,
         )
         log(f"[MorshuCog] playing TTS in '{target.name}' for '{text[:40]}'")
+        if not replied:
+            await interaction.delete_original_response()
 
     async def cog_app_command_error(
         self, interaction: discord.Interaction, error: app_commands.AppCommandError

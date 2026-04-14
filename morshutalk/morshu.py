@@ -158,7 +158,7 @@ class Morshu:
             p = phonemes.pop(0)
             if p in _g2p.phonemes:
                 phoneme_segment.append(p)
-            if p not in g2p.phonemes or len(phonemes) == 0:
+            if p not in _g2p.phonemes or len(phonemes) == 0:
                 output = self.append_best_morshu_phoneme_segment(output, phoneme_segment, audio_out_millis,
                                                                  audio_morshu_millis)
                 phoneme_segment = []
