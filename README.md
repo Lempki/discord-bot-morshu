@@ -42,11 +42,11 @@ The same privileged intents as the base template are required. See the [discord-
 
 ## Bot permissions
 
-All base permissions from the [discord-bot-template](https://github.com/Lempki/discord-bot-template) are required, plus the following addition.
+All base permissions from the [discord-bot-template](https://github.com/Lempki/discord-bot-template) are required, plus the following addition:
 
 | Permission | Required for |
 |---|---|
-| Attach Files | Sending generated WAV files as Discord file attachments |
+| Attach Files | Sending generated WAV files as Discord file attachments. |
 
 ## Setup
 
