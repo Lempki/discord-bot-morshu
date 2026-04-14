@@ -3,7 +3,7 @@ set -e
 
 trap 'echo; echo "ERROR: Setup failed (line $LINENO). Press Enter to close..."; read -r _' ERR
 
-echo "=== discord-bot-template setup ==="
+echo "=== discord-bot-morshu setup ==="
 echo
 
 # Create virtual environment if it doesn't already exist
@@ -21,6 +21,10 @@ echo "Upgrading pip..."
 # Install requirements
 echo "Installing requirements..."
 .venv/bin/python -m pip install -r requirements.txt
+
+# Download required NLTK data for the TTS engine
+echo "Downloading NLTK data..."
+.venv/bin/python -c "import nltk; nltk.download('averaged_perceptron_tagger_eng', quiet=True); nltk.download('punkt_tab', quiet=True)"
 
 # Copy .env.example to .env if .env doesn't exist yet
 if [ ! -f ".env" ]; then

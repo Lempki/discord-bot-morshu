@@ -16,6 +16,9 @@ _morshu_wav: "AudioSegment | None" = None
 def _ensure_loaded() -> None:
     global _g2p, _morshu_wav
     if _g2p is None:
+        import nltk
+        nltk.download("averaged_perceptron_tagger_eng", quiet=True)
+        nltk.download("punkt_tab", quiet=True)
         _g2p = G2pProgress()
     if _morshu_wav is None:
         _morshu_wav = AudioSegment.from_wav(morshu_wav_fp)

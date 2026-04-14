@@ -1,6 +1,6 @@
 @echo off
 setlocal
-echo === discord-bot-template setup ===
+echo === discord-bot-morshu setup ===
 echo.
 
 :: Require Python 3.10+
@@ -38,6 +38,15 @@ echo Installing requirements...
 .venv\Scripts\python -m pip install -r requirements.txt
 if errorlevel 1 (
     echo ERROR: Failed to install requirements.
+    pause
+    exit /b 1
+)
+
+:: Download required NLTK data for the TTS engine
+echo Downloading NLTK data...
+.venv\Scripts\python -c "import nltk; nltk.download('averaged_perceptron_tagger_eng', quiet=True); nltk.download('punkt_tab', quiet=True)"
+if errorlevel 1 (
+    echo ERROR: Failed to download NLTK data.
     pause
     exit /b 1
 )
