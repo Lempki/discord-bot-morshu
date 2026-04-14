@@ -58,8 +58,8 @@ The script creates a `.venv` virtual environment if one does not already exist. 
 If you prefer to perform the setup manually, follow these steps:
 
 ```bash
-git clone https://github.com/Lempki/bot-morshu.git
-cd bot-morshu
+git clone https://github.com/Lempki/discord-bot-morshu.git
+cd discord-bot-morshu
 python -m venv .venv
 source .venv/bin/activate
 # On Windows use: .venv\Scripts\activate
@@ -71,7 +71,7 @@ python bot.py
 
 ## Configuration
 
-The base configuration variables are documented in the [discord-bot-template](https://github.com/Lempki/discord-bot-template) repository. The following variables are either specific to bot-morshu or have recommended values that differ from the defaults.
+The base configuration variables are documented in the [discord-bot-template](https://github.com/Lempki/discord-bot-template) repository. The following variables are either specific to discord-bot-morshu or have recommended values that differ from the defaults.
 
 | Variable | Recommended value | Description |
 |---|---|---|
@@ -81,7 +81,7 @@ The base configuration variables are documented in the [discord-bot-template](ht
 ## Project structure
 
 ```
-bot-morshu/
+discord-bot-morshu/
 ├── bot.py              # Entry point.
 ├── config.py           # Environment variable reader. Extend this file to add new configuration keys.
 ├── localization.py     # Strings dataclass and locale presets. Define new languages here.
