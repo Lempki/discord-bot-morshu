@@ -86,7 +86,7 @@ discord-bot-morshu/
 ├── config.py           # Environment variable reader. Extend this file to add new configuration keys.
 ├── localization.py     # Strings dataclass and locale presets. Define new languages here.
 ├── cogs/
-│   ├── morshu.py       # Morshu TTS commands (!tts, !morshu).
+│   ├── morshu.py       # Morshu TTS commands (/tts, /morshu).
 │   ├── voice.py        # Voice-related commands such as join, leave, and skip.
 │   └── youtube.py      # YouTube audio queue with playlist support.
 ├── morshutalk/         # TTS engine adapted from MorshuTalk by n0spaces.
