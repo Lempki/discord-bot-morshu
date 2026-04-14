@@ -8,7 +8,7 @@ All commands use `/` as the default prefix.
 
 | Command | Alias | Description |
 |---|---|---|
-| `/tts <text>` | `/generate <text>` | Generates a WAV file from the given text and sends it as a Discord file attachment. |
+| `/generate <text>` | `/tts <text>` | Generates a WAV file from the given text and sends it as a Discord file attachment. |
 | `/morshu <text>` | `/speak <text>` | Joins your current voice channel and plays the generated audio. The audio file is removed automatically after playback completes. |
 
 ## Prerequisites

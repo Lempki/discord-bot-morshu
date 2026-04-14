@@ -23,44 +23,46 @@ class MorshuCog(commands.Cog, name="Morshu"):
         segment.export(buf, format="wav")
         return buf.getvalue()
 
-    @commands.command(name="tts", aliases=["generate"])
+    @commands.hybrid_command(name="generate", aliases=["tts"])
     @in_bot_channel()
     async def tts(self, ctx: commands.Context, *, text: str):
         """Generate a Morshu TTS WAV and send as a file attachment."""
+        await ctx.defer()
         s = self.bot.strings
         if msg := s.morshu_generating:
-            await ctx.reply(msg)
+            await ctx.send(msg)
 
         loop = asyncio.get_event_loop()
         wav_bytes = await loop.run_in_executor(None, self._generate_audio, text)
 
         if not wav_bytes:
             if msg := s.morshu_empty:
-                await ctx.reply(msg)
+                await ctx.send(msg)
             return
 
-        await ctx.reply(file=discord.File(io.BytesIO(wav_bytes), filename="morshu.wav"))
+        await ctx.send(file=discord.File(io.BytesIO(wav_bytes), filename="morshu.wav"))
         log(f"[MorshuCog] sent TTS file for '{text[:40]}'")
 
-    @commands.command(name="morshu", aliases=["speak"])
+    @commands.hybrid_command(name="morshu", aliases=["speak"])
     @in_bot_channel()
     async def speak(self, ctx: commands.Context, *, text: str):
         """Join the user's voice channel and play Morshu TTS audio."""
+        await ctx.defer()
         s = self.bot.strings
         if ctx.author.voice is None:
             if msg := s.not_in_voice.format(user=ctx.author):
-                await ctx.reply(msg)
+                await ctx.send(msg)
             return
 
         if msg := s.morshu_generating:
-            await ctx.reply(msg)
+            await ctx.send(msg)
 
         loop = asyncio.get_event_loop()
         wav_bytes = await loop.run_in_executor(None, self._generate_audio, text)
 
         if not wav_bytes:
             if msg := s.morshu_empty:
-                await ctx.reply(msg)
+                await ctx.send(msg)
             return
 
         target = ctx.author.voice.channel
@@ -68,11 +70,11 @@ class MorshuCog(commands.Cog, name="Morshu"):
         if vc is None:
             vc = await target.connect()
             if msg := s.joined_voice.format(channel=target):
-                await ctx.reply(msg)
+                await ctx.send(msg)
         elif vc.channel != target:
             await vc.move_to(target)
             if msg := s.moved_voice.format(channel=target):
-                await ctx.reply(msg)
+                await ctx.send(msg)
 
         if vc.is_playing():
             vc.stop()
@@ -99,9 +101,14 @@ class MorshuCog(commands.Cog, name="Morshu"):
 
     async def cog_command_error(self, ctx: commands.Context, error: Exception):
         if isinstance(error, commands.CheckFailure):
+            if ctx.interaction and not ctx.interaction.response.is_done():
+                await ctx.interaction.response.send_message(
+                    "This command can only be used in the designated bot channel.",
+                    ephemeral=True,
+                )
             return
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.reply(f"Missing required argument: `{error.param.name}`")
+            await ctx.send(f"Missing required argument: `{error.param.name}`")
         else:
             raise error
 
