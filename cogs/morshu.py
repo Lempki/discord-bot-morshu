@@ -3,6 +3,7 @@ import io
 import os
 import tempfile
 import discord
+from discord import app_commands
 from discord.ext import commands
 from utils.checks import in_bot_channel
 from utils.logging import log
@@ -23,58 +24,58 @@ class MorshuCog(commands.Cog, name="Morshu"):
         segment.export(buf, format="wav")
         return buf.getvalue()
 
-    @commands.hybrid_command(name="generate", aliases=["tts"])
+    @app_commands.command(name="generate")
     @in_bot_channel()
-    async def tts(self, ctx: commands.Context, *, text: str):
+    async def tts(self, interaction: discord.Interaction, text: str):
         """Generate a Morshu TTS WAV and send as a file attachment."""
-        await ctx.defer()
+        await interaction.response.defer()
         s = self.bot.strings
         if msg := s.morshu_generating:
-            await ctx.send(msg)
+            await interaction.followup.send(msg)
 
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         wav_bytes = await loop.run_in_executor(None, self._generate_audio, text)
 
         if not wav_bytes:
             if msg := s.morshu_empty:
-                await ctx.send(msg)
+                await interaction.followup.send(msg)
             return
 
-        await ctx.send(file=discord.File(io.BytesIO(wav_bytes), filename="morshu.wav"))
+        await interaction.followup.send(file=discord.File(io.BytesIO(wav_bytes), filename="morshu.wav"))
         log(f"[MorshuCog] sent TTS file for '{text[:40]}'")
 
-    @commands.hybrid_command(name="morshu", aliases=["speak"])
+    @app_commands.command(name="morshu")
     @in_bot_channel()
-    async def speak(self, ctx: commands.Context, *, text: str):
+    async def speak(self, interaction: discord.Interaction, text: str):
         """Join the user's voice channel and play Morshu TTS audio."""
-        await ctx.defer()
+        await interaction.response.defer()
         s = self.bot.strings
-        if ctx.author.voice is None:
-            if msg := s.not_in_voice.format(user=ctx.author):
-                await ctx.send(msg)
+        if interaction.user.voice is None:
+            if msg := s.not_in_voice.format(user=interaction.user):
+                await interaction.followup.send(msg)
             return
 
         if msg := s.morshu_generating:
-            await ctx.send(msg)
+            await interaction.followup.send(msg)
 
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         wav_bytes = await loop.run_in_executor(None, self._generate_audio, text)
 
         if not wav_bytes:
             if msg := s.morshu_empty:
-                await ctx.send(msg)
+                await interaction.followup.send(msg)
             return
 
-        target = ctx.author.voice.channel
-        vc = ctx.voice_client
+        target = interaction.user.voice.channel
+        vc = interaction.guild.voice_client
         if vc is None:
             vc = await target.connect()
             if msg := s.joined_voice.format(channel=target):
-                await ctx.send(msg)
+                await interaction.followup.send(msg)
         elif vc.channel != target:
             await vc.move_to(target)
             if msg := s.moved_voice.format(channel=target):
-                await ctx.send(msg)
+                await interaction.followup.send(msg)
 
         if vc.is_playing():
             vc.stop()
@@ -99,24 +100,23 @@ class MorshuCog(commands.Cog, name="Morshu"):
         )
         log(f"[MorshuCog] playing TTS in '{target.name}' for '{text[:40]}'")
 
-    async def cog_command_error(self, ctx: commands.Context, error: Exception):
-        if isinstance(error, commands.CheckFailure):
-            if ctx.interaction and not ctx.interaction.response.is_done():
-                await ctx.interaction.response.send_message(
+    async def cog_app_command_error(
+        self, interaction: discord.Interaction, error: app_commands.AppCommandError
+    ):
+        if isinstance(error, app_commands.CheckFailure):
+            if not interaction.response.is_done():
+                await interaction.response.send_message(
                     "This command can only be used in the designated bot channel.",
                     ephemeral=True,
                 )
             return
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(f"Missing required argument: `{error.param.name}`")
-        else:
-            raise error
+        raise error
 
     @commands.Cog.listener()
     async def on_ready(self):
         # Preload the g2p model and source WAV in a background thread so the
-        # first !tts / !morshu command doesn't stall waiting for NLTK data.
-        asyncio.get_event_loop().run_in_executor(None, _ensure_loaded)
+        # first /generate / /morshu command doesn't stall waiting for NLTK data.
+        asyncio.get_running_loop().run_in_executor(None, _ensure_loaded)
         print(f"[{self.__class__.__name__}] loaded.")
 
 
