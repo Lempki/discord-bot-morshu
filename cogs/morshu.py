@@ -74,6 +74,13 @@ class MorshuCog(commands.Cog, name="Morshu"):
                 await interaction.delete_original_response()
             return
 
+        # Re-check: user may have left the voice channel while audio was being generated.
+        if interaction.user.voice is None:
+            replied = await self._followup(interaction, s.not_in_voice, user=interaction.user) or replied
+            if not replied:
+                await interaction.delete_original_response()
+            return
+
         target = interaction.user.voice.channel
         vc = interaction.guild.voice_client
         if vc is None:
