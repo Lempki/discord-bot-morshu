@@ -54,6 +54,9 @@ class Strings:
     load_error: str = ""
     # {prefix}
     play_usage: str = ""
+    stopped: str = ""
+    paused: str = ""
+    resumed: str = ""
 
     # --- Morshu cog ---
     morshu_generating: str = ""
@@ -80,6 +83,9 @@ ENGLISH = Strings(
     now_playing="Now playing `{title}` in `{channel}`.",
     load_error="Failed to load audio. Try again, `{user}`.",
     play_usage="Provide a URL: `{prefix}play <url>`",
+    stopped="Stopped and cleared the queue.",
+    paused="Paused.",
+    resumed="Resumed.",
     morshu_generating="Generating...",
     morshu_empty="Could not generate audio for that input.",
 )
