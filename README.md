@@ -81,7 +81,7 @@ python bot.py
 
 ## Configuration
 
-The base configuration variables are documented in the [Discord Bot Template](https://github.com/Lempki/discord-bot-template) repository. The following variables are either specific to discord-bot-morshu or behave differently from the template defaults.
+The base configuration variables are documented in the [Discord Bot Template](https://github.com/Lempki/discord-bot-template) repository. The following variables are either specific to Morshu or behave differently from the template defaults.
 
 | Variable | Default | Description |
 |---|---|---|
