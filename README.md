@@ -36,11 +36,11 @@ This is a Discord bot that synthesizes speech in Morshu's voice using a text-to-
 
 ## Privileged intents
 
-The same privileged intents as the base template are required. See the [discord-bot-template](https://github.com/Lempki/discord-bot-template) repository for details.
+The same privileged intents as the base template are required. See the [Discord Bot Template](https://github.com/Lempki/discord-bot-template) repository for details.
 
 ## Bot permissions
 
-All base permissions from the [discord-bot-template](https://github.com/Lempki/discord-bot-template) are required, plus the following addition:
+All base permissions from the [Discord Bot Template](https://github.com/Lempki/discord-bot-template) are required, plus the following addition:
 
 | Permission | Required for |
 |---|---|
@@ -81,7 +81,7 @@ python bot.py
 
 ## Configuration
 
-The base configuration variables are documented in the [discord-bot-template](https://github.com/Lempki/discord-bot-template) repository. The following variables are either specific to discord-bot-morshu or behave differently from the template defaults.
+The base configuration variables are documented in the [Discord Bot Template](https://github.com/Lempki/discord-bot-template) repository. The following variables are either specific to discord-bot-morshu or behave differently from the template defaults.
 
 | Variable | Default | Description |
 |---|---|---|
