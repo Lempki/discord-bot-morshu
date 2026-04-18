@@ -1,6 +1,6 @@
 # Morshu
 
-This is a Discord bot that synthesizes speech in Morshu's voice using a text-to-speech engine based on [MorshuTalk](https://github.com/n0spaces/MorshuTalk) by [n0spaces](https://github.com/n0spaces). The bot accepts arbitrary text input and generates audio by intelligently stitching phoneme segments from Morshu's original Zelda CD-i dialogue. This project is based on the [Discord Bot Template](https://github.com/Lempki/discord-bot-template) repository, which provides the core architecture.
+This is a Discord bot that synthesizes speech in Morshu's voice using a text-to-speech engine based on [MorshuTalk](https://github.com/n0spaces/MorshuTalk) by [n0spaces](https://github.com/n0spaces). The bot accepts arbitrary text input and generates audio by intelligently stitching phoneme segments from Morshu's original Zelda CD-i dialogue. This project is based on the [Discord Bot Template](https://github.com/Lempki/discord-bot-template) repository, which provides the core architecture. The TTS engine and its source assets are hosted as a standalone service in [discord-api-tts](https://github.com/Lempki/discord-api-tts).
 
 ## Commands
 
@@ -32,7 +32,6 @@ This is a Discord bot that synthesizes speech in Morshu's voice using a text-to-
     sudo apt install ffmpeg
     ```
 
-* You must install [Git LFS](https://git-lfs.com/) because the repository uses it to manage the source audio file located in `morshutalk/`.
 
 ## Privileged intents
 
@@ -101,8 +100,7 @@ discord-bot-morshu/
 │   └── youtube.py      # YouTube audio queue with playlist support.
 ├── morshutalk/         # TTS engine adapted from MorshuTalk by n0spaces.
 │   ├── morshu.py       # Core phoneme matching and audio stitching logic.
-│   ├── g2p.py          # Grapheme-to-phoneme conversion wrapper.
-│   └── morshu.wav      # Source audio file containing Morshu's CD-i dialogue.
+│   └── g2p.py          # Grapheme-to-phoneme conversion wrapper.
 ├── utils/
 │   ├── audio.py        # Audio helpers including YouTubeDLSource and playback utilities.
 │   ├── checks.py       # Custom command checks such as in_bot_channel().
@@ -113,6 +111,15 @@ discord-bot-morshu/
 ├── setup.sh            # macOS and Linux setup script.
 └── requirements.txt
 ```
+
+## Related services
+
+The following services work alongside this bot and handle functionality that is managed centrally rather than bundled in each bot repository.
+
+| Service | Description |
+|---|---|
+| [discord-api-tts](https://github.com/Lempki/discord-api-tts) | Hosts the Morshu TTS engine. Accepts text and returns a synthesised WAV file. The source audio and video assets live here. |
+| [discord-api-media](https://github.com/Lempki/discord-api-media) | Resolves YouTube and SoundCloud track metadata and stream URLs. Bots call this instead of bundling yt-dlp directly. |
 
 ## Credits
 
