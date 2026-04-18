@@ -1,6 +1,6 @@
-# Morshu
+# discord-bot-morshu
 
-This is a Discord bot that synthesizes speech in Morshu's voice using a text-to-speech engine based on [MorshuTalk](https://github.com/n0spaces/MorshuTalk) by [n0spaces](https://github.com/n0spaces). The bot accepts arbitrary text input and generates audio by intelligently stitching phoneme segments from Morshu's original Zelda CD-i dialogue. This project is based on the [Discord Bot Template](https://github.com/Lempki/discord-bot-template) repository, which provides the core architecture. The TTS engine and its source assets are hosted as a standalone service in [discord-api-tts](https://github.com/Lempki/discord-api-tts).
+This is a Discord bot that synthesizes speech in Morshu's voice using a text-to-speech engine based on [MorshuTalk](https://github.com/n0spaces/MorshuTalk) by [n0spaces](https://github.com/n0spaces). The bot accepts arbitrary text input and generates audio by intelligently stitching phoneme segments from Morshu's original Zelda CD-i dialogue. This project is based on the [discord-bot-template](https://github.com/Lempki/discord-bot-template) repository, which provides the core architecture. The TTS engine and its source assets are hosted as a standalone service in [discord-api-tts](https://github.com/Lempki/discord-api-tts).
 
 ## Commands
 
@@ -35,11 +35,11 @@ This is a Discord bot that synthesizes speech in Morshu's voice using a text-to-
 
 ## Privileged intents
 
-The same privileged intents as the base template are required. See the [Discord Bot Template](https://github.com/Lempki/discord-bot-template) repository for details.
+The same privileged intents as the base template are required. See the [discord-bot-template](https://github.com/Lempki/discord-bot-template) repository for details.
 
 ## Bot permissions
 
-All base permissions from the [Discord Bot Template](https://github.com/Lempki/discord-bot-template) are required, plus the following addition:
+All base permissions from the [discord-bot-template](https://github.com/Lempki/discord-bot-template) are required, plus the following addition:
 
 | Permission | Required for |
 |---|---|
@@ -78,9 +78,22 @@ cp .env.template .env
 python bot.py
 ```
 
+### Docker
+
+Alternatively, you can run the bot as a Docker container.
+
+1. Copy `.env.template` to `.env` and set `DISCORD_TOKEN`.
+2. Build and start the container:
+
+   ```
+   docker-compose up -d
+   ```
+
+The container automatically restarts unless explicitly stopped.
+
 ## Configuration
 
-The base configuration variables are documented in the [Discord Bot Template](https://github.com/Lempki/discord-bot-template) repository. The following variables are either specific to Morshu or behave differently from the template defaults.
+The base configuration variables are documented in the [discord-bot-template](https://github.com/Lempki/discord-bot-template) repository. The following variables are either specific to discord-bot-morshu or behave differently from the template defaults.
 
 | Variable | Default | Description |
 |---|---|---|
@@ -109,6 +122,9 @@ discord-bot-morshu/
 ├── .env.template       # Template for environment variables.
 ├── setup.bat           # Windows setup script.
 ├── setup.sh            # macOS and Linux setup script.
+├── Dockerfile
+├── docker-compose.yml
+├── .dockerignore
 └── requirements.txt
 ```
 
@@ -118,7 +134,7 @@ The following services work alongside this bot and handle functionality that is 
 
 | Service | Description |
 |---|---|
-| [discord-api-tts](https://github.com/Lempki/discord-api-tts) | Hosts the Morshu TTS engine. Accepts text and returns a synthesised WAV file. The source audio and video assets live here. |
+| [discord-api-tts](https://github.com/Lempki/discord-api-tts) | Hosts the Morshu TTS engine. Accepts text and returns a synthesised WAV or video file. The source audio and video assets live here. |
 | [discord-api-media](https://github.com/Lempki/discord-api-media) | Resolves YouTube and SoundCloud track metadata and stream URLs. Bots call this instead of bundling yt-dlp directly. |
 
 ## Credits
