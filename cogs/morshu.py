@@ -2,9 +2,12 @@ import asyncio
 import io
 import os
 import tempfile
+
 import discord
+import httpx
 from discord import app_commands
 from discord.ext import commands
+
 from utils.checks import in_bot_channel
 from utils.logging import log
 from morshutalk import Morshu
@@ -14,9 +17,28 @@ from morshutalk.morshu import _ensure_loaded
 class MorshuCog(commands.Cog, name="Morshu"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        cfg = bot.config
+        if cfg.DISCORD_API_TTS_URL and cfg.DISCORD_API_TTS_SECRET:
+            self._http: httpx.AsyncClient | None = httpx.AsyncClient(
+                base_url=cfg.DISCORD_API_TTS_URL,
+                headers={"Authorization": f"Bearer {cfg.DISCORD_API_TTS_SECRET}"},
+                timeout=60.0,
+            )
+        else:
+            self._http = None
 
-    def _generate_audio(self, text: str) -> bytes:
-        """CPU-bound; always call via run_in_executor. Returns WAV bytes."""
+    async def cog_unload(self) -> None:
+        if self._http:
+            await self._http.aclose()
+
+    async def _call_api(self, text: str, fmt: str = "wav") -> bytes:
+        """POST to /tts/synthesize. Raises httpx.HTTPStatusError on API errors."""
+        resp = await self._http.post("/tts/synthesize", json={"text": text, "format": fmt})
+        resp.raise_for_status()
+        return resp.content
+
+    def _generate_audio_local(self, text: str) -> bytes:
+        """CPU-bound local WAV fallback used when the API is not configured."""
         segment = Morshu().load_text(text)
         if segment is False or len(segment) == 0:
             return b""
@@ -32,23 +54,50 @@ class MorshuCog(commands.Cog, name="Morshu"):
         return True
 
     @app_commands.command(name="generate")
+    @app_commands.describe(format="Output format", text="Text to synthesize")
+    @app_commands.choices(format=[
+        app_commands.Choice(name="WAV audio", value="wav"),
+        app_commands.Choice(name="MP4 video", value="video"),
+    ])
     @in_bot_channel()
-    async def tts(self, interaction: discord.Interaction, text: str):
-        """Generate a Morshu TTS WAV and send as a file attachment."""
+    async def tts(
+        self,
+        interaction: discord.Interaction,
+        format: app_commands.Choice[str],
+        text: str,
+    ):
+        """Generate Morshu TTS and send as a file attachment."""
         await interaction.response.defer()
         s = self.bot.strings
+        fmt = format.value
+
         replied = await self._followup(interaction, s.morshu_generating)
 
-        loop = asyncio.get_running_loop()
-        wav_bytes = await loop.run_in_executor(None, self._generate_audio, text)
-
-        if not wav_bytes:
+        data: bytes = b""
+        try:
+            if self._http:
+                data = await self._call_api(text, fmt)
+            elif fmt == "video":
+                if not await self._followup(interaction, s.morshu_video_unavailable) and not replied:
+                    await interaction.delete_original_response()
+                return
+            else:
+                loop = asyncio.get_running_loop()
+                data = await loop.run_in_executor(None, self._generate_audio_local, text)
+        except Exception as exc:
+            log(f"[MorshuCog] synthesis error: {exc}")
             if not await self._followup(interaction, s.morshu_empty) and not replied:
                 await interaction.delete_original_response()
             return
 
-        await interaction.followup.send(file=discord.File(io.BytesIO(wav_bytes), filename="morshu.wav"))
-        log(f"[MorshuCog] sent TTS file for '{text[:40]}'")
+        if not data:
+            if not await self._followup(interaction, s.morshu_empty) and not replied:
+                await interaction.delete_original_response()
+            return
+
+        filename = "morshu.mp4" if fmt == "video" else "morshu.wav"
+        await interaction.followup.send(file=discord.File(io.BytesIO(data), filename=filename))
+        log(f"[MorshuCog] sent TTS {fmt} for '{text[:40]}'")
 
     @app_commands.command(name="morshu")
     @in_bot_channel()
@@ -66,15 +115,24 @@ class MorshuCog(commands.Cog, name="Morshu"):
 
         replied = await self._followup(interaction, s.morshu_generating)
 
-        loop = asyncio.get_running_loop()
-        wav_bytes = await loop.run_in_executor(None, self._generate_audio, text)
-
-        if not wav_bytes:
+        data: bytes = b""
+        try:
+            if self._http:
+                data = await self._call_api(text, "wav")
+            else:
+                loop = asyncio.get_running_loop()
+                data = await loop.run_in_executor(None, self._generate_audio_local, text)
+        except Exception as exc:
+            log(f"[MorshuCog] synthesis error: {exc}")
             if not await self._followup(interaction, s.morshu_empty) and not replied:
                 await interaction.delete_original_response()
             return
 
-        # Re-check: user may have left the voice channel while audio was being generated.
+        if not data:
+            if not await self._followup(interaction, s.morshu_empty) and not replied:
+                await interaction.delete_original_response()
+            return
+
         if interaction.user.voice is None:
             replied = await self._followup(interaction, s.not_in_voice, user=interaction.user) or replied
             if not replied:
@@ -94,7 +152,7 @@ class MorshuCog(commands.Cog, name="Morshu"):
             vc.stop()
 
         tmp = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
-        tmp.write(wav_bytes)
+        tmp.write(data)
         tmp.close()
         tmp_path = tmp.name
 
@@ -127,9 +185,8 @@ class MorshuCog(commands.Cog, name="Morshu"):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        # Preload the g2p model and source WAV in a background thread so the
-        # first /generate / /morshu command doesn't stall waiting for NLTK data.
-        asyncio.get_running_loop().run_in_executor(None, _ensure_loaded)
+        if not self._http:
+            asyncio.get_running_loop().run_in_executor(None, _ensure_loaded)
         print(f"[{self.__class__.__name__}] loaded.")
 
 

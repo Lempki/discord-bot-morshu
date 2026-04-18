@@ -64,6 +64,7 @@ class Strings:
     # --- Morshu cog ---
     morshu_generating: str = ""
     morshu_empty: str = ""
+    morshu_video_unavailable: str = ""
 
 
 # ---------------------------------------------------------------------------
@@ -92,6 +93,7 @@ ENGLISH = Strings(
     resumed="Resumed.",
     morshu_generating="Generating...",
     morshu_empty="Could not generate audio for that input.",
+    morshu_video_unavailable="Video output requires the TTS API to be configured. Set DISCORD_API_TTS_URL and DISCORD_API_TTS_SECRET in your .env file.",
 )
 
 #: Map LOCALE env var values to Strings instances.
