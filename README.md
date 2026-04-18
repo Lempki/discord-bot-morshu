@@ -70,8 +70,7 @@ If you prefer to perform the setup manually, follow these steps:
 git clone https://github.com/Lempki/discord-bot-morshu.git
 cd discord-bot-morshu
 python -m venv .venv
-source .venv/bin/activate
-# On Windows use: .venv\Scripts\activate
+source .venv/bin/activate  # On Windows use: .venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.template .env
 # Edit .env and set DISCORD_TOKEN and other values as needed.
