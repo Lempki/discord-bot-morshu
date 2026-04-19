@@ -42,15 +42,6 @@ if errorlevel 1 (
     exit /b 1
 )
 
-:: Download required NLTK data for the TTS engine
-echo Downloading NLTK data...
-.venv\Scripts\python -c "import nltk; nltk.download('averaged_perceptron_tagger_eng', quiet=True); nltk.download('punkt_tab', quiet=True)"
-if errorlevel 1 (
-    echo ERROR: Failed to download NLTK data.
-    pause
-    exit /b 1
-)
-
 :: Copy .env.example to .env if .env doesn't exist yet
 if not exist ".env" (
     copy ".env.template" ".env" >nul

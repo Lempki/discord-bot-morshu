@@ -1,6 +1,6 @@
 # discord-bot-morshu
 
-This is a Discord bot that synthesizes speech in Morshu's voice using a text-to-speech engine based on [MorshuTalk](https://github.com/n0spaces/MorshuTalk) by [n0spaces](https://github.com/n0spaces). The bot accepts arbitrary text input and generates audio by intelligently stitching phoneme segments from Morshu's original Zelda CD-i dialogue. This project is based on the [discord-bot-template](https://github.com/Lempki/discord-bot-template) repository, which provides the core architecture. The TTS engine and its source assets are hosted as a standalone service in [discord-api-morshutalk](https://github.com/Lempki/discord-api-morshutalk).
+This is a Discord bot that generates speech in Morshu's voice by calling the [discord-api-morshu](https://github.com/Lempki/discord-api-morshu) API. This project is based on the [discord-bot-template](https://github.com/Lempki/discord-bot-template) repository, which provides the core architecture.
 
 ## Commands
 
@@ -99,10 +99,8 @@ The base configuration variables are documented in the [discord-bot-template](ht
 |---|---|---|
 | `COGS_TO_LOAD` | `template` | Cogs to load at startup. Set to `help,morshu` for TTS-only, `help,voice,morshu` to add voice channel commands, or `help,voice,media,morshu` for the full feature set. |
 | `LOCALE` | `silent` | Bot message language. Set to `en` to enable status messages such as generation progress and error notifications. |
-| `DISCORD_API_TTS_URL` | — | Base URL of the [discord-api-morshutalk](https://github.com/Lempki/discord-api-morshutalk) service. Required for MP4 video output. When set, all synthesis is routed through the API instead of the local engine. |
-| `DISCORD_API_TTS_SECRET` | — | Bearer token for the discord-api-morshutalk service. Must match `DISCORD_API_SECRET` in the service configuration. |
-
-When `DISCORD_API_TTS_URL` is not set, the bot falls back to a local TTS engine for WAV audio synthesis. This mode does not support MP4 video output. To use it, place `morshu.wav` in the `morshutalk/` directory. The bot will attempt to pre-load this file in the background on startup.
+| `DISCORD_API_TTS_URL` | — | Base URL of the [discord-api-morshu](https://github.com/Lempki/discord-api-morshu) service. Required when the `morshu` cog is loaded. |
+| `DISCORD_API_TTS_SECRET` | — | Bearer token for the discord-api-morshu service. Must match `DISCORD_API_SECRET` in the service configuration. |
 
 ## Project structure
 
@@ -116,9 +114,6 @@ discord-bot-morshu/
 │   ├── morshu.py       # Morshu TTS commands (/generate, /morshu).
 │   ├── voice.py        # Voice-related commands such as join, leave, and skip.
 │   └── media.py        # Audio queue with YouTube and Spotify support.
-├── morshutalk/         # TTS engine adapted from MorshuTalk by n0spaces.
-│   ├── morshu.py       # Core phoneme matching and audio stitching logic.
-│   └── g2p.py          # Grapheme-to-phoneme conversion wrapper.
 ├── utils/
 │   ├── audio.py        # MediaAPIClient, URL helpers, and local file playback utility.
 │   ├── checks.py       # Custom command checks such as in_bot_channel().
@@ -142,9 +137,6 @@ The following services work alongside this bot and handle functionality that is 
 
 | Service | Description |
 |---|---|
-| [discord-api-morshutalk](https://github.com/Lempki/discord-api-morshutalk) | Hosts the Morshu TTS engine. Accepts text and returns a synthesised WAV or video file. The source audio and video assets live here. |
+| [discord-api-morshu](https://github.com/Lempki/discord-api-morshu) | Hosts the Morshu TTS engine. Accepts text and returns a synthesised WAV or video file. The source audio and sprite assets live here. |
 | [discord-api-media](https://github.com/Lempki/discord-api-media) | Resolves YouTube, SoundCloud, and Spotify track metadata and stream URLs. Bots call this instead of bundling yt-dlp directly. |
 
-## Credits
-
-The TTS engine in `morshutalk/` is adapted from [MorshuTalk](https://github.com/n0spaces/MorshuTalk) by [n0spaces](https://github.com/n0spaces), released under the [MIT License](https://github.com/n0spaces/MorshuTalk/blob/master/LICENSE.txt).
