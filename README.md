@@ -8,6 +8,7 @@ This is a Discord bot that synthesizes speech in Morshu's voice using a text-to-
 |---|---|
 | `/generate <format> <text>` | Generates audio or video from the given text and sends it as a file attachment. `format` choices are `WAV audio` and `MP4 video`. |
 | `/morshu <text>` | Joins your current voice channel and plays the generated audio. The audio file is removed automatically after playback completes. |
+| `/help` | Displays all loaded commands grouped by cog in an ephemeral embed. |
 
 ## Prerequisites
 
@@ -96,7 +97,7 @@ The base configuration variables are documented in the [discord-bot-template](ht
 
 | Variable | Default | Description |
 |---|---|---|
-| `COGS_TO_LOAD` | `template` | Cogs to load at startup. Set to `morshu` for TTS-only mode, or `voice,morshu` to also include standalone voice channel commands. |
+| `COGS_TO_LOAD` | `template` | Cogs to load at startup. Set to `help,morshu` for TTS-only mode, or `help,voice,morshu` to also include standalone voice channel commands. |
 | `LOCALE` | `silent` | Bot message language. Set to `en` to enable status messages such as generation progress and error notifications. |
 | `DISCORD_API_TTS_URL` | none | Base URL of the [discord-api-tts](https://github.com/Lempki/discord-api-tts) service. Required for MP4 video output. When set, all synthesis is routed through the API instead of the local engine. |
 | `DISCORD_API_TTS_SECRET` | none | Bearer token for the TTS API. Must match `DISCORD_API_SECRET` in the API service configuration. |
@@ -109,6 +110,7 @@ discord-bot-morshu/
 ├── config.py           # Environment variable reader. Extend this file to add new configuration keys.
 ├── localization.py     # Strings dataclass and locale presets. Define new languages here.
 ├── cogs/
+│   ├── help.py         # /help command. Lists all loaded commands grouped by cog.
 │   ├── morshu.py       # Morshu TTS commands (/generate, /morshu).
 │   ├── voice.py        # Voice-related commands such as join, leave, and skip.
 │   └── youtube.py      # YouTube audio queue with playlist support.
