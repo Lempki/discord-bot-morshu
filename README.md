@@ -1,6 +1,6 @@
 # discord-bot-morshu
 
-This is a Discord bot that synthesizes speech in Morshu's voice using a text-to-speech engine based on [MorshuTalk](https://github.com/n0spaces/MorshuTalk) by [n0spaces](https://github.com/n0spaces). The bot accepts arbitrary text input and generates audio by intelligently stitching phoneme segments from Morshu's original Zelda CD-i dialogue. This project is based on the [discord-bot-template](https://github.com/Lempki/discord-bot-template) repository, which provides the core architecture. The TTS engine and its source assets are hosted as a standalone service in [discord-api-tts](https://github.com/Lempki/discord-api-tts).
+This is a Discord bot that synthesizes speech in Morshu's voice using a text-to-speech engine based on [MorshuTalk](https://github.com/n0spaces/MorshuTalk) by [n0spaces](https://github.com/n0spaces). The bot accepts arbitrary text input and generates audio by intelligently stitching phoneme segments from Morshu's original Zelda CD-i dialogue. This project is based on the [discord-bot-template](https://github.com/Lempki/discord-bot-template) repository, which provides the core architecture. The TTS engine and its source assets are hosted as a standalone service in [discord-api-morshutalk](https://github.com/Lempki/discord-api-morshutalk).
 
 ## Commands
 
@@ -99,8 +99,8 @@ The base configuration variables are documented in the [discord-bot-template](ht
 |---|---|---|
 | `COGS_TO_LOAD` | `template` | Cogs to load at startup. Set to `help,morshu` for TTS-only mode, or `help,voice,morshu` to also include standalone voice channel commands. |
 | `LOCALE` | `silent` | Bot message language. Set to `en` to enable status messages such as generation progress and error notifications. |
-| `DISCORD_API_TTS_URL` | none | Base URL of the [discord-api-tts](https://github.com/Lempki/discord-api-tts) service. Required for MP4 video output. When set, all synthesis is routed through the API instead of the local engine. |
-| `DISCORD_API_TTS_SECRET` | none | Bearer token for the TTS API. Must match `DISCORD_API_SECRET` in the API service configuration. |
+| `DISCORD_API_TTS_URL` | — | Base URL of the [discord-api-morshutalk](https://github.com/Lempki/discord-api-morshutalk) service. Required for MP4 video output. When set, all synthesis is routed through the API instead of the local engine. |
+| `DISCORD_API_TTS_SECRET` | — | Bearer token for the discord-api-morshutalk service. Must match `DISCORD_API_SECRET` in the service configuration. |
 
 ## Project structure
 
@@ -121,7 +121,10 @@ discord-bot-morshu/
 │   ├── audio.py        # MediaAPIClient, URL helpers, and local file playback utility.
 │   ├── checks.py       # Custom command checks such as in_bot_channel().
 │   └── logging.py      # Timestamped console logging helper.
-├── assets/audio/       # Directory for audio assets. Managed via Git LFS.
+├── assets/
+│   ├── audio/          # .ogg, .mp3, .wav — Git LFS
+│   ├── images/         # .png, .jpg, .gif, .webp — Git LFS
+│   └── videos/         # .mp4, .mov, .webm — Git LFS
 ├── .env.template       # Template for environment variables.
 ├── setup.bat           # Windows setup script.
 ├── setup.sh            # macOS and Linux setup script.
@@ -137,7 +140,7 @@ The following services work alongside this bot and handle functionality that is 
 
 | Service | Description |
 |---|---|
-| [discord-api-tts](https://github.com/Lempki/discord-api-tts) | Hosts the Morshu TTS engine. Accepts text and returns a synthesised WAV or video file. The source audio and video assets live here. |
+| [discord-api-morshutalk](https://github.com/Lempki/discord-api-morshutalk) | Hosts the Morshu TTS engine. Accepts text and returns a synthesised WAV or video file. The source audio and video assets live here. |
 | [discord-api-media](https://github.com/Lempki/discord-api-media) | Resolves YouTube, SoundCloud, and Spotify track metadata and stream URLs. Bots call this instead of bundling yt-dlp directly. |
 
 ## Credits
