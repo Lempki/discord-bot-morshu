@@ -97,10 +97,12 @@ The base configuration variables are documented in the [discord-bot-template](ht
 
 | Variable | Default | Description |
 |---|---|---|
-| `COGS_TO_LOAD` | `template` | Cogs to load at startup. Set to `help,morshu` for TTS-only mode, or `help,voice,morshu` to also include standalone voice channel commands. |
+| `COGS_TO_LOAD` | `template` | Cogs to load at startup. Set to `help,morshu` for TTS-only, `help,voice,morshu` to add voice channel commands, or `help,voice,media,morshu` for the full feature set. |
 | `LOCALE` | `silent` | Bot message language. Set to `en` to enable status messages such as generation progress and error notifications. |
 | `DISCORD_API_TTS_URL` | — | Base URL of the [discord-api-morshutalk](https://github.com/Lempki/discord-api-morshutalk) service. Required for MP4 video output. When set, all synthesis is routed through the API instead of the local engine. |
 | `DISCORD_API_TTS_SECRET` | — | Bearer token for the discord-api-morshutalk service. Must match `DISCORD_API_SECRET` in the service configuration. |
+
+When `DISCORD_API_TTS_URL` is not set, the bot falls back to a local TTS engine for WAV audio synthesis. This mode does not support MP4 video output. To use it, place `morshu.wav` in the `morshutalk/` directory. The bot will attempt to pre-load this file in the background on startup.
 
 ## Project structure
 
