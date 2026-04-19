@@ -28,3 +28,7 @@ class Config:
     # for WAV generation when the local TTS engine is unavailable.
     DISCORD_API_TTS_URL: str | None = os.getenv("DISCORD_API_TTS_URL") or None
     DISCORD_API_TTS_SECRET: str | None = os.getenv("DISCORD_API_TTS_SECRET") or None
+
+    # discord-api-media service. Required when the youtube cog is loaded.
+    DISCORD_API_MEDIA_URL: str | None = os.getenv("DISCORD_API_MEDIA_URL") or None
+    DISCORD_API_MEDIA_SECRET: str | None = os.getenv("DISCORD_API_MEDIA_SECRET") or None
