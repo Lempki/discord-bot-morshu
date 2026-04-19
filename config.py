@@ -11,7 +11,7 @@ class Config:
     # Optional with defaults
     FFMPEG_PATH: str | None = os.getenv("FFMPEG_PATH") or None  # None = use system PATH
 
-    # Comma-separated list of cog module names to load (e.g. "template,voice,youtube")
+    # Comma-separated list of cog module names to load (e.g. "template,voice,media")
     COGS_TO_LOAD: list[str] = os.getenv("COGS_TO_LOAD", "template").split(",")
 
     # Optional server-specific settings
@@ -29,6 +29,6 @@ class Config:
     DISCORD_API_TTS_URL: str | None = os.getenv("DISCORD_API_TTS_URL") or None
     DISCORD_API_TTS_SECRET: str | None = os.getenv("DISCORD_API_TTS_SECRET") or None
 
-    # discord-api-media service. Required when the youtube cog is loaded.
+    # discord-api-media service. Required when the media cog is loaded.
     DISCORD_API_MEDIA_URL: str | None = os.getenv("DISCORD_API_MEDIA_URL") or None
     DISCORD_API_MEDIA_SECRET: str | None = os.getenv("DISCORD_API_MEDIA_SECRET") or None

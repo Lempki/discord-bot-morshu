@@ -113,12 +113,12 @@ discord-bot-morshu/
 │   ├── help.py         # /help command. Lists all loaded commands grouped by cog.
 │   ├── morshu.py       # Morshu TTS commands (/generate, /morshu).
 │   ├── voice.py        # Voice-related commands such as join, leave, and skip.
-│   └── youtube.py      # YouTube audio queue with playlist support.
+│   └── media.py        # Audio queue with YouTube and Spotify support.
 ├── morshutalk/         # TTS engine adapted from MorshuTalk by n0spaces.
 │   ├── morshu.py       # Core phoneme matching and audio stitching logic.
 │   └── g2p.py          # Grapheme-to-phoneme conversion wrapper.
 ├── utils/
-│   ├── audio.py        # Audio helpers including YouTubeDLSource and playback utilities.
+│   ├── audio.py        # MediaAPIClient, URL helpers, and local file playback utility.
 │   ├── checks.py       # Custom command checks such as in_bot_channel().
 │   └── logging.py      # Timestamped console logging helper.
 ├── assets/audio/       # Directory for audio assets. Managed via Git LFS.
@@ -138,7 +138,7 @@ The following services work alongside this bot and handle functionality that is 
 | Service | Description |
 |---|---|
 | [discord-api-tts](https://github.com/Lempki/discord-api-tts) | Hosts the Morshu TTS engine. Accepts text and returns a synthesised WAV or video file. The source audio and video assets live here. |
-| [discord-api-media](https://github.com/Lempki/discord-api-media) | Resolves YouTube and SoundCloud track metadata and stream URLs. Bots call this instead of bundling yt-dlp directly. |
+| [discord-api-media](https://github.com/Lempki/discord-api-media) | Resolves YouTube, SoundCloud, and Spotify track metadata and stream URLs. Bots call this instead of bundling yt-dlp directly. |
 
 ## Credits
 
