@@ -24,8 +24,7 @@ class Config:
     # Add more in localization.py. Default is "silent" (bot sends no messages).
     LOCALE: str = os.getenv("LOCALE", "silent")
 
-    # discord-api-tts service. Required for video output; also used as a fallback
-    # for WAV generation when the local TTS engine is unavailable.
+    # discord-api-tts service. Required for /morshu and /generate commands.
     DISCORD_API_TTS_URL: str | None = os.getenv("DISCORD_API_TTS_URL") or None
     DISCORD_API_TTS_SECRET: str | None = os.getenv("DISCORD_API_TTS_SECRET") or None
 
