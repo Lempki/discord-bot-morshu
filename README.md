@@ -97,7 +97,7 @@ The base configuration variables are documented in the [discord-bot-template](ht
 
 | Variable | Default | Description |
 |---|---|---|
-| `COGS_TO_LOAD` | `template` | Cogs to load at startup. Set to `help,morshu` for TTS-only, `help,voice,morshu` to add voice channel commands, or `help,voice,media,morshu` for the full feature set. |
+| `COGS_TO_LOAD` | `template` | Cogs to load at startup. Set to `help,morshu` for TTS-only, `help,voice,morshu` to add voice channel commands, or `help,voice,media,morshu,admin,moderation` for the full feature set. |
 | `LOCALE` | `silent` | Bot message language. Set to `en` to enable status messages such as generation progress and error notifications. |
 | `DISCORD_API_TTS_URL` | — | Base URL of the [discord-api-morshu](https://github.com/Lempki/discord-api-morshu) service. Required when the `morshu` cog is loaded. |
 | `DISCORD_API_TTS_SECRET` | — | Bearer token for the discord-api-morshu service. Must match `DISCORD_API_SECRET` in the service configuration. |
@@ -113,10 +113,13 @@ discord-bot-morshu/
 │   ├── help.py         # /help command. Lists all loaded commands grouped by cog.
 │   ├── morshu.py       # Morshu TTS commands (/generate, /morshu).
 │   ├── voice.py        # Voice-related commands such as join, leave, and skip.
-│   └── media.py        # Audio queue with YouTube and Spotify support.
+│   ├── media.py        # Audio queue with YouTube and Spotify support.
+│   ├── admin.py        # /admin command group for per-guild configuration.
+│   └── moderation.py   # /warn, /warnings, /clearwarning, /clearwarnings, /kick, /ban.
 ├── utils/
 │   ├── audio.py        # MediaAPIClient, URL helpers, and local file playback utility.
 │   ├── checks.py       # Custom command checks such as in_bot_channel().
+│   ├── database.py     # aiosqlite singleton, per-guild settings and warnings CRUD.
 │   └── logging.py      # Timestamped console logging helper.
 ├── assets/
 │   ├── audio/          # .ogg, .mp3, .wav — Git LFS
