@@ -97,7 +97,7 @@ The base configuration variables are documented in the [discord-bot-template](ht
 
 | Variable | Default | Description |
 |---|---|---|
-| `COGS_TO_LOAD` | `template` | Cogs to load at startup. Set to `help,morshu` for TTS-only, `help,voice,morshu` to add voice channel commands, or `help,voice,media,morshu,admin,moderation` for the full feature set. |
+| `COGS_TO_LOAD` | `help,morshu` | Cogs to load at startup. Use `help,voice,morshu` to add voice channel commands, or `help,voice,media,morshu,admin,moderation` for the full feature set. |
 | `LOCALE` | `silent` | Bot message language. Set to `en` to enable status messages such as generation progress and error notifications. |
 | `DISCORD_API_TTS_URL` | — | Base URL of the [discord-api-morshu](https://github.com/Lempki/discord-api-morshu) service. Required when the `morshu` cog is loaded. |
 | `DISCORD_API_TTS_SECRET` | — | Bearer token for the discord-api-morshu service. Must match `DISCORD_API_SECRET` in the service configuration. |
@@ -115,7 +115,8 @@ discord-bot-morshu/
 │   ├── voice.py        # Voice-related commands such as join, leave, and skip.
 │   ├── media.py        # Audio queue with YouTube and Spotify support.
 │   ├── admin.py        # /admin command group for per-guild configuration.
-│   └── moderation.py   # /warn, /warnings, /clearwarning, /clearwarnings, /kick, /ban.
+│   ├── moderation.py   # /warn, /warnings, /clearwarning, /clearwarnings, /kick, /ban.
+│   └── template.py     # Reference cog inherited from discord-bot-template. Not loaded by default.
 ├── utils/
 │   ├── audio.py        # MediaAPIClient, URL helpers, and local file playback utility.
 │   ├── checks.py       # Custom command checks such as in_bot_channel().

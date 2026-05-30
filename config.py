@@ -11,8 +11,8 @@ class Config:
     # Optional with defaults
     FFMPEG_PATH: str | None = os.getenv("FFMPEG_PATH") or None  # None = use system PATH
 
-    # Comma-separated list of cog module names to load (e.g. "template,voice,media")
-    COGS_TO_LOAD: list[str] = os.getenv("COGS_TO_LOAD", "template").split(",")
+    # Comma-separated list of cog module names to load (e.g. "help,voice,media,morshu")
+    COGS_TO_LOAD: list[str] = os.getenv("COGS_TO_LOAD", "help,morshu").split(",")
 
     # Path to the SQLite database file for per-guild settings and moderation data.
     DATABASE_PATH: str = os.getenv("DATABASE_PATH", "bot.db")
