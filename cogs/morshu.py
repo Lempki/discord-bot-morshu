@@ -1,6 +1,7 @@
+import contextlib
 import io
-import os
 import tempfile
+from pathlib import Path
 
 import discord
 import httpx
@@ -28,11 +29,15 @@ class MorshuCog(commands.Cog, name="Morshu"):
         await self._http.aclose()
 
     async def _call_api(self, text: str, fmt: str = "wav") -> bytes:
-        resp = await self._http.post("/tts/synthesize", json={"text": text, "format": fmt})
+        resp = await self._http.post(
+            "/tts/synthesize", json={"text": text, "format": fmt}
+        )
         resp.raise_for_status()
         return resp.content
 
-    async def _followup(self, interaction: discord.Interaction, template: str, **kwargs) -> bool:
+    async def _followup(
+        self, interaction: discord.Interaction, template: str, **kwargs
+    ) -> bool:
         if not (msg := template.format(**kwargs) if kwargs else template):
             return False
         await interaction.followup.send(msg)
@@ -40,10 +45,12 @@ class MorshuCog(commands.Cog, name="Morshu"):
 
     @app_commands.command(name="generate")
     @app_commands.describe(format="Output format", text="Text to synthesize")
-    @app_commands.choices(format=[
-        app_commands.Choice(name="WAV audio", value="wav"),
-        app_commands.Choice(name="MP4 video", value="video"),
-    ])
+    @app_commands.choices(
+        format=[
+            app_commands.Choice(name="WAV audio", value="wav"),
+            app_commands.Choice(name="MP4 video", value="video"),
+        ]
+    )
     @in_bot_channel()
     async def tts(
         self,
@@ -72,7 +79,9 @@ class MorshuCog(commands.Cog, name="Morshu"):
             return
 
         filename = "morshu.mp4" if fmt == "video" else "morshu.wav"
-        await interaction.followup.send(file=discord.File(io.BytesIO(data), filename=filename))
+        await interaction.followup.send(
+            file=discord.File(io.BytesIO(data), filename=filename)
+        )
         log(f"[MorshuCog] sent TTS {fmt} for '{text[:40]}'")
 
     @app_commands.command(name="morshu")
@@ -84,7 +93,9 @@ class MorshuCog(commands.Cog, name="Morshu"):
         replied = False
 
         if interaction.user.voice is None:
-            replied = await self._followup(interaction, s.not_in_voice, user=interaction.user)
+            replied = await self._followup(
+                interaction, s.not_in_voice, user=interaction.user
+            )
             if not replied:
                 await interaction.delete_original_response()
             return
@@ -105,7 +116,10 @@ class MorshuCog(commands.Cog, name="Morshu"):
             return
 
         if interaction.user.voice is None:
-            replied = await self._followup(interaction, s.not_in_voice, user=interaction.user) or replied
+            replied = (
+                await self._followup(interaction, s.not_in_voice, user=interaction.user)
+                or replied
+            )
             if not replied:
                 await interaction.delete_original_response()
             return
@@ -114,24 +128,27 @@ class MorshuCog(commands.Cog, name="Morshu"):
         vc = interaction.guild.voice_client
         if vc is None:
             vc = await target.connect()
-            replied = await self._followup(interaction, s.joined_voice, channel=target) or replied
+            replied = (
+                await self._followup(interaction, s.joined_voice, channel=target)
+                or replied
+            )
         elif vc.channel != target:
             await vc.move_to(target)
-            replied = await self._followup(interaction, s.moved_voice, channel=target) or replied
+            replied = (
+                await self._followup(interaction, s.moved_voice, channel=target)
+                or replied
+            )
 
         if vc.is_playing():
             vc.stop()
 
-        tmp = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
-        tmp.write(data)
-        tmp.close()
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+            tmp.write(data)
         tmp_path = tmp.name
 
         def after_playback(error):
-            try:
-                os.unlink(tmp_path)
-            except OSError:
-                pass
+            with contextlib.suppress(OSError):
+                Path(tmp_path).unlink()
             if error:
                 log(f"[MorshuCog] playback error: {error}")
 
@@ -148,9 +165,10 @@ class MorshuCog(commands.Cog, name="Morshu"):
         self, interaction: discord.Interaction, error: app_commands.AppCommandError
     ):
         if isinstance(error, app_commands.CheckFailure):
-            if not interaction.response.is_done():
-                if msg := self.bot.strings.bot_channel_only:
-                    await interaction.response.send_message(msg, ephemeral=True)
+            if not interaction.response.is_done() and (
+                msg := self.bot.strings.bot_channel_only
+            ):
+                await interaction.response.send_message(msg, ephemeral=True)
             return
         raise error
 
