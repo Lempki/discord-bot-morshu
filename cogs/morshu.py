@@ -1,5 +1,6 @@
 import contextlib
 import io
+import logging
 import tempfile
 from pathlib import Path
 
@@ -9,19 +10,18 @@ from discord import app_commands
 from discord.ext import commands
 
 from utils.checks import in_bot_channel
-from utils.logging import log
+
+log = logging.getLogger(__name__)
 
 
 class MorshuCog(commands.Cog, name="Morshu"):
     def __init__(self, bot: commands.Bot):
-        if not bot.config.DISCORD_API_TTS_URL or not bot.config.DISCORD_API_TTS_SECRET:
-            raise RuntimeError(
-                "DISCORD_API_TTS_URL and DISCORD_API_TTS_SECRET must be set to use the morshu cog."
-            )
+        # Raises ConfigError with the missing variable names, which stops the cog from loading.
+        service = bot.config.service("morshu")
         self.bot = bot
         self._http = httpx.AsyncClient(
-            base_url=bot.config.DISCORD_API_TTS_URL,
-            headers={"Authorization": f"Bearer {bot.config.DISCORD_API_TTS_SECRET}"},
+            base_url=service.url,
+            headers={"Authorization": f"Bearer {service.secret}"},
             timeout=60.0,
         )
 
@@ -68,7 +68,7 @@ class MorshuCog(commands.Cog, name="Morshu"):
         try:
             data = await self._call_api(text, fmt)
         except Exception as exc:
-            log(f"[MorshuCog] synthesis error: {exc}")
+            log.warning(f"Synthesis error: {exc}")
             if not await self._followup(interaction, s.morshu_empty) and not replied:
                 await interaction.delete_original_response()
             return
@@ -82,7 +82,7 @@ class MorshuCog(commands.Cog, name="Morshu"):
         await interaction.followup.send(
             file=discord.File(io.BytesIO(data), filename=filename)
         )
-        log(f"[MorshuCog] sent TTS {fmt} for '{text[:40]}'")
+        log.info(f"Sent TTS {fmt} for '{text[:40]}'.")
 
     @app_commands.command(name="morshu")
     @in_bot_channel()
@@ -105,7 +105,7 @@ class MorshuCog(commands.Cog, name="Morshu"):
         try:
             data = await self._call_api(text, "wav")
         except Exception as exc:
-            log(f"[MorshuCog] synthesis error: {exc}")
+            log.warning(f"Synthesis error: {exc}")
             if not await self._followup(interaction, s.morshu_empty) and not replied:
                 await interaction.delete_original_response()
             return
@@ -150,14 +150,15 @@ class MorshuCog(commands.Cog, name="Morshu"):
             with contextlib.suppress(OSError):
                 Path(tmp_path).unlink()
             if error:
-                log(f"[MorshuCog] playback error: {error}")
+                log.warning(f"Playback error: {error}")
 
-        ffmpeg = self.bot.config.FFMPEG_PATH or "ffmpeg"
         vc.play(
-            discord.FFmpegPCMAudio(source=tmp_path, executable=ffmpeg),
+            discord.FFmpegPCMAudio(
+                source=tmp_path, executable=self.bot.config.ffmpeg_path
+            ),
             after=after_playback,
         )
-        log(f"[MorshuCog] playing TTS in '{target.name}' for '{text[:40]}'")
+        log.info(f"Playing TTS in '{target.name}' for '{text[:40]}'.")
         if not replied:
             await interaction.delete_original_response()
 
@@ -172,9 +173,8 @@ class MorshuCog(commands.Cog, name="Morshu"):
             return
         raise error
 
-    @commands.Cog.listener()
-    async def on_ready(self):
-        print(f"[{self.__class__.__name__}] loaded.")
+    async def cog_load(self) -> None:
+        log.info(f"{self.qualified_name} cog loaded.")
 
 
 async def setup(bot: commands.Bot):
