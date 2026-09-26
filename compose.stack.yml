@@ -1,0 +1,63 @@
+# Runs the bot together with the discord-api-* services it uses, built from the sibling repository folders.
+# Clone discord-api-morshu next to this repository, then run: docker compose -f compose.stack.yml up --build
+# Add --profile media to also run discord-api-media, cloned next to this repository the same way.
+# The services share a private network, so their ports are not published to the host.
+
+services:
+  bot:
+    build: .
+    env_file:
+      - .env
+    environment:
+      # Inside the stack the bot reaches each service by its compose name instead of localhost.
+      DISCORD_API_MORSHU_URL: http://morshu:8000
+      DISCORD_API_MEDIA_URL: http://media:8000
+    volumes:
+      - bot-data:/app/data
+    depends_on:
+      morshu:
+        condition: service_healthy
+      media:
+        condition: service_healthy
+        required: false
+    restart: unless-stopped
+
+  morshu:
+    build: ../discord-api-morshu
+    env_file:
+      # Optional settings. The file may be absent.
+      - path: ../discord-api-morshu/.env
+        required: false
+    environment:
+      # One secret, read from this repository's .env, so the bot and the service always agree.
+      DISCORD_API_SECRET: ${DISCORD_API_MORSHU_SECRET:?Set DISCORD_API_MORSHU_SECRET in .env}
+    volumes:
+      # The service reads morshu.wav from here.
+      - ../discord-api-morshu/assets:/data:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      # Its startup loads a model, which takes longer than the other services.
+      retries: 12
+    restart: unless-stopped
+
+  media:
+    build: ../discord-api-media
+    profiles: ["media"]
+    env_file:
+      # Optional settings such as Spotify credentials. The file may be absent.
+      - path: ../discord-api-media/.env
+        required: false
+    environment:
+      # One secret, read from this repository's .env, so the bot and the service always agree.
+      DISCORD_API_SECRET: ${DISCORD_API_MEDIA_SECRET:-}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped
+
+volumes:
+  bot-data:
