@@ -1,21 +1,35 @@
-import contextlib
+"""Morshu speech through discord-api-morshu, sent as a file or spoken in a voice channel."""
+
 import io
 import logging
-import tempfile
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import discord
 import httpx
 from discord import app_commands
 from discord.ext import commands
 
-from utils.checks import in_bot_channel
+from utils.audio import bytes_source
+from utils.checks import guild_of, in_bot_channel
+from utils.replies import finish, mark_replied, respond
+
+if TYPE_CHECKING:
+    from bot import BotApp
 
 log = logging.getLogger(__name__)
 
+_MEGABYTE = 1024 * 1024
+
+
+def _megabytes(size: int) -> float:
+    """Returns a size in bytes as megabytes, rounded to one decimal."""
+    return round(size / _MEGABYTE, 1)
+
 
 class MorshuCog(commands.Cog, name="Morshu"):
-    def __init__(self, bot: commands.Bot):
+    """Morshu text-to-speech as WAV audio, lip-synced MP4 video, or live voice."""
+
+    def __init__(self, bot: "BotApp") -> None:
         # Raises ConfigError with the missing variable names, which stops the cog from loading.
         service = bot.config.service("morshu")
         self.bot = bot
@@ -28,154 +42,130 @@ class MorshuCog(commands.Cog, name="Morshu"):
     async def cog_unload(self) -> None:
         await self._http.aclose()
 
-    async def _call_api(self, text: str, fmt: str = "wav") -> bytes:
-        resp = await self._http.post(
-            "/tts/synthesize", json={"text": text, "format": fmt}
-        )
-        resp.raise_for_status()
-        return resp.content
+    async def _synthesize(self, text: str, output: str) -> bytes:
+        """Asks discord-api-morshu to speak a text.
 
-    async def _followup(
-        self, interaction: discord.Interaction, template: str, **kwargs
-    ) -> bool:
-        if not (msg := template.format(**kwargs) if kwargs else template):
-            return False
-        await interaction.followup.send(msg)
-        return True
+        Args:
+            text: What Morshu says.
+            output: The file type, which is "wav" or "video".
+
+        Returns:
+            The generated file. It is empty when the service produced nothing.
+
+        Raises:
+            httpx.HTTPError: If the service is unreachable or rejects the request.
+        """
+        response = await self._http.post(
+            "/tts/synthesize", json={"text": text, "format": output}
+        )
+        response.raise_for_status()
+        return response.content
 
     @app_commands.command(name="generate")
-    @app_commands.describe(format="Output format", text="Text to synthesize")
+    @app_commands.guild_only()
+    @in_bot_channel()
+    @app_commands.rename(output="format")
+    @app_commands.describe(
+        output="The file type to create.",
+        text="What Morshu says, up to 500 characters.",
+    )
     @app_commands.choices(
-        format=[
+        output=[
             app_commands.Choice(name="WAV audio", value="wav"),
             app_commands.Choice(name="MP4 video", value="video"),
         ]
     )
-    @in_bot_channel()
-    async def tts(
+    async def generate(
         self,
         interaction: discord.Interaction,
-        format: app_commands.Choice[str],
-        text: str,
-    ):
-        """Generate Morshu TTS and send as a file attachment."""
+        output: app_commands.Choice[str],
+        text: app_commands.Range[str, 1, 500],
+    ) -> None:
+        """Generate Morshu speech and send it as a file."""
+        # Generating speech takes longer than the 3 seconds Discord allows for a reply.
         await interaction.response.defer()
-        s = self.bot.strings
-        fmt = format.value
-
-        replied = await self._followup(interaction, s.morshu_generating)
+        s = self.bot.strings_for(interaction)
+        guild = guild_of(interaction)
+        await respond(interaction, s.morshu_generating)
 
         try:
-            data = await self._call_api(text, fmt)
-        except Exception as exc:
-            log.warning(f"Synthesis error: {exc}")
-            if not await self._followup(interaction, s.morshu_empty) and not replied:
-                await interaction.delete_original_response()
-            return
-
+            data = await self._synthesize(text, output.value)
+        except httpx.HTTPError as error:
+            log.warning(f"Synthesis failed: {error}")
+            data = b""
         if not data:
-            if not await self._followup(interaction, s.morshu_empty) and not replied:
-                await interaction.delete_original_response()
+            await respond(interaction, s.morshu_empty)
+            await finish(interaction)
             return
 
-        filename = "morshu.mp4" if fmt == "video" else "morshu.wav"
+        limit = guild.filesize_limit
+        if len(data) > limit:
+            await respond(
+                interaction,
+                s.morshu_too_large,
+                size=_megabytes(len(data)),
+                limit=_megabytes(limit),
+            )
+            await finish(interaction)
+            return
+
+        filename = "morshu.mp4" if output.value == "video" else "morshu.wav"
         await interaction.followup.send(
             file=discord.File(io.BytesIO(data), filename=filename)
         )
-        log.info(f"Sent TTS {fmt} for '{text[:40]}'.")
+        # The file is the reply, so finish() must never delete it.
+        mark_replied(interaction)
+        log.info(f"Sent a {output.value} file for '{text[:40]}' in {guild}.")
 
     @app_commands.command(name="morshu")
+    @app_commands.guild_only()
     @in_bot_channel()
-    async def speak(self, interaction: discord.Interaction, text: str):
-        """Join the user's voice channel and play Morshu TTS audio."""
+    @app_commands.describe(text="What Morshu says, up to 500 characters.")
+    async def morshu(
+        self, interaction: discord.Interaction, text: app_commands.Range[str, 1, 500]
+    ) -> None:
+        """Join your voice channel and speak as Morshu."""
         await interaction.response.defer()
-        s = self.bot.strings
-        replied = False
-
-        if interaction.user.voice is None:
-            replied = await self._followup(
-                interaction, s.not_in_voice, user=interaction.user
-            )
-            if not replied:
-                await interaction.delete_original_response()
+        s = self.bot.strings_for(interaction)
+        guild = guild_of(interaction)
+        member = interaction.user
+        if (
+            not isinstance(member, discord.Member)
+            or member.voice is None
+            or member.voice.channel is None
+        ):
+            await respond(interaction, s.not_in_voice, user=member.display_name)
+            await finish(interaction)
             return
-
-        replied = await self._followup(interaction, s.morshu_generating)
+        channel = member.voice.channel
+        await respond(interaction, s.morshu_generating)
 
         try:
-            data = await self._call_api(text, "wav")
-        except Exception as exc:
-            log.warning(f"Synthesis error: {exc}")
-            if not await self._followup(interaction, s.morshu_empty) and not replied:
-                await interaction.delete_original_response()
-            return
-
+            data = await self._synthesize(text, "wav")
+        except httpx.HTTPError as error:
+            log.warning(f"Synthesis failed: {error}")
+            data = b""
         if not data:
-            if not await self._followup(interaction, s.morshu_empty) and not replied:
-                await interaction.delete_original_response()
+            await respond(interaction, s.morshu_empty)
+            await finish(interaction)
             return
 
-        if interaction.user.voice is None:
-            replied = (
-                await self._followup(interaction, s.not_in_voice, user=interaction.user)
-                or replied
-            )
-            if not replied:
-                await interaction.delete_original_response()
-            return
-
-        target = interaction.user.voice.channel
-        vc = interaction.guild.voice_client
-        if vc is None:
-            vc = await target.connect()
-            replied = (
-                await self._followup(interaction, s.joined_voice, channel=target)
-                or replied
-            )
-        elif vc.channel != target:
-            await vc.move_to(target)
-            replied = (
-                await self._followup(interaction, s.moved_voice, channel=target)
-                or replied
-            )
-
+        vc = await self.bot.voice_presence.connect(channel)
         if vc.is_playing():
             vc.stop()
-
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
-            tmp.write(data)
-        tmp_path = tmp.name
-
-        def after_playback(error):
-            with contextlib.suppress(OSError):
-                Path(tmp_path).unlink()
-            if error:
-                log.warning(f"Playback error: {error}")
-
-        vc.play(
-            discord.FFmpegPCMAudio(
-                source=tmp_path, executable=self.bot.config.ffmpeg_path
-            ),
-            after=after_playback,
-        )
-        log.info(f"Playing TTS in '{target.name}' for '{text[:40]}'.")
-        if not replied:
-            await interaction.delete_original_response()
-
-    async def cog_app_command_error(
-        self, interaction: discord.Interaction, error: app_commands.AppCommandError
-    ):
-        if isinstance(error, app_commands.CheckFailure):
-            if not interaction.response.is_done() and (
-                msg := self.bot.strings.bot_channel_only
-            ):
-                await interaction.response.send_message(msg, ephemeral=True)
-            return
-        raise error
+        # Playback lasts longer than the interaction should stay open, so the command ends first.
+        await finish(interaction)
+        log.info(f"Speaking '{text[:40]}' in {channel.name} of {guild}.")
+        try:
+            await self.bot.voice_presence.play(
+                vc, bytes_source(data, self.bot.config.ffmpeg_path)
+            )
+        except Exception as error:
+            log.warning(f"Playback in {guild} failed: {error}")
 
     async def cog_load(self) -> None:
         log.info(f"{self.qualified_name} cog loaded.")
 
 
-async def setup(bot: commands.Bot):
+async def setup(bot: "BotApp") -> None:
     await bot.add_cog(MorshuCog(bot))
