@@ -2,8 +2,9 @@
 FROM ghcr.io/astral-sh/uv:0.12.19 AS uv
 
 FROM python:3.12-slim
+# FFmpeg decodes audio and libopus0 encodes it for Discord voice.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ffmpeg libsodium-dev \
+    && apt-get install -y --no-install-recommends ffmpeg libopus0 \
     && rm -rf /var/lib/apt/lists/*
 RUN useradd --create-home appuser
 WORKDIR /app
@@ -17,7 +18,9 @@ COPY pyproject.toml uv.lock .python-version ./
 RUN uv sync --frozen --no-dev
 
 COPY . .
-ENV PATH="/app/.venv/bin:$PATH"
-RUN python -c "import nltk; nltk.download('averaged_perceptron_tagger_eng', quiet=True); nltk.download('punkt_tab', quiet=True)"
+# The database lives in /app/data, which compose mounts as a volume so it survives rebuilds.
+RUN mkdir -p /app/data && chown appuser:appuser /app/data
+ENV PATH="/app/.venv/bin:$PATH" \
+    DATABASE_PATH=/app/data/bot.db
 USER appuser
 CMD ["python", "bot.py"]
