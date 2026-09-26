@@ -87,14 +87,26 @@ The coding, prose, and commit conventions are documented in [discord-dev-standar
 
 Alternatively, you can run the bot as a Docker container.
 
-1. Copy `.env.template` to `.env` and set `DISCORD_TOKEN`.
+1. Copy `.env.template` to `.env` and set `DISCORD_TOKEN`, `DISCORD_API_MORSHU_URL`, and `DISCORD_API_MORSHU_SECRET`.
 2. Build and start the container:
 
    ```
-   docker-compose up -d
+   docker compose up -d --build
    ```
 
-The container automatically restarts unless explicitly stopped.
+The container restarts automatically unless you stop it.
+The database lives on the `bot-data` volume, so settings and warnings survive rebuilds and `docker compose down`.
+Only `docker compose down -v` deletes it.
+
+To also run discord-api-morshu, clone it next to this repository and use the stack file instead:
+
+```
+docker compose -f compose.stack.yml up -d --build
+```
+
+Add `--profile media` to also run discord-api-media, cloned next to this repository the same way.
+The stack builds each service from its sibling folder and connects them on a private network.
+It passes `DISCORD_API_MORSHU_SECRET`, and `DISCORD_API_MEDIA_SECRET` when the media profile is used, from this repository's `.env` to the matching service, so the bot and each service always agree.
 
 ## Configuration
 
@@ -104,15 +116,15 @@ The base configuration variables are documented in the [discord-bot-template](ht
 |---|---|---|
 | `COGS_TO_LOAD` | `help,morshu` | Cogs to load at startup. Use `help,voice,morshu` to add voice channel commands, or `help,voice,media,morshu,admin,moderation` for the full feature set. |
 | `LOCALE` | `silent` | Bot message language. Set to `en` to enable status messages such as generation progress and error notifications. |
-| `DISCORD_API_TTS_URL` | — | Base URL of the [discord-api-morshu](https://github.com/Lempki/discord-api-morshu) service. Required when the `morshu` cog is loaded. |
-| `DISCORD_API_TTS_SECRET` | — | Bearer token for the discord-api-morshu service. Must match `DISCORD_API_SECRET` in the service configuration. |
+| `DISCORD_API_MORSHU_URL` | — | Base URL of the [discord-api-morshu](https://github.com/Lempki/discord-api-morshu) service. Required when the `morshu` cog is loaded. `compose.stack.yml` overrides this inside the stack. |
+| `DISCORD_API_MORSHU_SECRET` | — | Bearer token for the discord-api-morshu service. Must match `DISCORD_API_SECRET` in the service configuration. |
 
 ## Project structure
 
 ```
 discord-bot-morshu/
 ├── bot.py              # Entry point.
-├── config.py           # Environment variable reader. Extend this file to add new configuration keys.
+├── config.py           # Reads settings and discord-api-* service URLs from the environment.
 ├── localization.py     # Strings dataclass and locale presets. Define new languages here.
 ├── cogs/
 │   ├── help.py         # /help command. Lists all loaded commands grouped by cog.
@@ -125,8 +137,7 @@ discord-bot-morshu/
 ├── utils/
 │   ├── audio.py        # MediaAPIClient, URL helpers, and local file playback utility.
 │   ├── checks.py       # Custom command checks such as in_bot_channel().
-│   ├── database.py     # aiosqlite singleton, per-guild settings and warnings CRUD.
-│   └── logging.py      # Timestamped console logging helper.
+│   └── database.py     # Versioned SQLite schema, per-guild settings, and warnings.
 ├── assets/
 │   ├── audio/          # .ogg, .mp3, .wav — Git LFS
 │   ├── images/         # .png, .jpg, .gif, .webp — Git LFS
@@ -139,7 +150,8 @@ discord-bot-morshu/
 ├── setup.bat           # Windows setup script.
 ├── setup.sh            # macOS and Linux setup script.
 ├── Dockerfile
-├── docker-compose.yml
+├── docker-compose.yml  # Runs the bot alone, with its database on a volume.
+├── compose.stack.yml   # Runs the bot together with the discord-api-* services it uses.
 └── .dockerignore
 ```
 
@@ -154,7 +166,7 @@ uvx --from git+https://github.com/Lempki/discord-dev-standards@v0.1.1 dev-standa
 ```
 
 Add `--apply` to copy the template's version over every drifted file, then review the result with `git diff` before committing.
-Keep bot-specific changes in files outside the manifest, such as `config.py`, `localization.py`, and `cogs/morshu.py`.
+Keep bot-specific changes in files outside the manifest, such as `localization.py`, `compose.stack.yml`, and `cogs/morshu.py`.
 
 ## Related services
 

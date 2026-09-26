@@ -27,4 +27,5 @@ The shared conventions live in [discord-dev-standards](https://github.com/Lempki
 
 * discord-bot-template's `.template-manifest.toml` lists the core files that this bot keeps identical to it.
 * Those files are changed in the template first, then carried over here with `dev-standards template-check --apply`.
-* Bot-specific behavior belongs in files outside the manifest, such as `config.py`, `localization.py`, and `cogs/morshu.py`.
+* Bot-specific behavior belongs in files outside the manifest, such as `localization.py`, `compose.stack.yml`, and `cogs/morshu.py`.
+* `config.py` is generic. This bot reads discord-api-morshu with `bot.config.service("morshu")`, which maps to `DISCORD_API_MORSHU_URL` and `DISCORD_API_MORSHU_SECRET`.
