@@ -6,8 +6,8 @@ This is a Discord bot that generates speech in Morshu's voice by calling the [di
 
 | Command | Description |
 |---|---|
-| `/generate <format> <text>` | Generates audio or video from the given text and sends it as a file attachment. `format` choices are `WAV audio` and `MP4 video`. |
-| `/morshu <text>` | Joins your current voice channel and plays the generated audio. The audio file is removed automatically after playback completes. |
+| `/generate <format> <text>` | Generates audio or video from the given text and sends it as a file attachment. `format` choices are `WAV audio` and `MP4 video`. A result over the server's upload limit is not sent. |
+| `/morshu <text>` | Joins your current voice channel and plays the generated audio. The bot leaves on its own when it is alone or after 10 minutes of silence. |
 | `/help` | Displays all loaded commands grouped by cog in an ephemeral embed. |
 
 ## Prerequisites
@@ -115,7 +115,7 @@ The base configuration variables are documented in the [discord-bot-template](ht
 | Variable | Default | Description |
 |---|---|---|
 | `COGS_TO_LOAD` | `help,morshu` | Cogs to load at startup. Use `help,voice,morshu` to add voice channel commands, or `help,voice,media,morshu,admin,moderation` for the full feature set. |
-| `LOCALE` | `silent` | Bot message language. Set to `en` to enable status messages such as generation progress and error notifications. |
+| `LOCALE` | `silent` | The fallback language for users whose Discord language the bot does not speak. Built-in values are `en` and `fi`. `silent` mutes public replies, such as generation progress and error notifications, while admin and moderator replies are still sent because only the person who ran the command sees them. |
 | `DISCORD_API_MORSHU_URL` | — | Base URL of the [discord-api-morshu](https://github.com/Lempki/discord-api-morshu) service. Required when the `morshu` cog is loaded. `compose.stack.yml` overrides this inside the stack. |
 | `DISCORD_API_MORSHU_SECRET` | — | Bearer token for the discord-api-morshu service. Must match `DISCORD_API_SECRET` in the service configuration. |
 
@@ -125,19 +125,23 @@ The base configuration variables are documented in the [discord-bot-template](ht
 discord-bot-morshu/
 ├── bot.py              # Entry point.
 ├── config.py           # Reads settings and discord-api-* service URLs from the environment.
-├── localization.py     # Strings dataclass and locale presets. Define new languages here.
+├── localization.py     # This bot's own messages and translations, layered on the core ones.
 ├── cogs/
 │   ├── help.py         # /help command. Lists all loaded commands grouped by cog.
 │   ├── morshu.py       # Morshu TTS commands (/generate, /morshu).
-│   ├── voice.py        # Voice-related commands such as join, leave, and skip.
-│   ├── media.py        # Audio queue with YouTube and Spotify support.
+│   ├── voice.py        # /join, /leave, and /skip. The bot leaves on its own when alone or idle.
+│   ├── media.py        # Per-server audio queue with YouTube, SoundCloud, and Spotify support.
 │   ├── admin.py        # /admin command group for per-guild configuration.
 │   ├── moderation.py   # /warn, /warnings, /clearwarning, /clearwarnings, /kick, /ban.
 │   └── template.py     # Reference cog inherited from discord-bot-template. Not loaded by default.
 ├── utils/
-│   ├── audio.py        # MediaAPIClient, URL helpers, and local file playback utility.
-│   ├── checks.py       # Custom command checks such as in_bot_channel().
-│   └── database.py     # Versioned SQLite schema, per-guild settings, and warnings.
+│   ├── audio.py        # MediaAPIClient, URL helpers, and audio sources for files, bytes, and streams.
+│   ├── checks.py       # Command checks such as in_bot_channel(), and guild_of().
+│   ├── database.py     # Versioned SQLite schema, per-guild settings, and warnings.
+│   ├── i18n.py         # Picks each user's language and translates command descriptions.
+│   ├── replies.py      # respond() and finish(), which never leave a command "thinking".
+│   ├── strings.py      # Every core message and command translation, in English and Finnish.
+│   └── voice.py        # Joins, plays in, and leaves voice channels for every cog.
 ├── assets/
 │   ├── audio/          # .ogg, .mp3, .wav — Git LFS
 │   ├── images/         # .png, .jpg, .gif, .webp — Git LFS
@@ -167,6 +171,21 @@ uvx --from git+https://github.com/Lempki/discord-dev-standards@v0.1.1 dev-standa
 
 Add `--apply` to copy the template's version over every drifted file, then review the result with `git diff` before committing.
 Keep bot-specific changes in files outside the manifest, such as `localization.py`, `compose.stack.yml`, and `cogs/morshu.py`.
+
+## Localization
+
+Replies follow the Discord language of the user who ran the command.
+A user whose language the bot does not speak gets the `LOCALE` language, and English after that.
+Messages without an interaction, such as the join welcome, use the server's preferred language.
+
+Command descriptions, option descriptions, and choice names are localized natively, so each user's Discord client shows them in their own language.
+Command and option names always stay English, so everyone types the same commands.
+
+The core cogs' messages and command translations live in `utils/strings.py`, in English and Finnish.
+This bot's own messages and the translations of `/generate` and `/morshu` live in `localization.py`, also in English and Finnish.
+To add a language, add its Discord locale code, such as `de` or `sv-SE`, to `BOT_TEXT` and `BOT_COMMAND_TEXT` in `localization.py`.
+
+The tests list every message or command text a language is missing, and they fail on command texts longer than Discord's 100-character limit.
 
 ## Related services
 
