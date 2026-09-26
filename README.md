@@ -12,7 +12,8 @@ This is a Discord bot that generates speech in Morshu's voice by calling the [di
 
 ## Prerequisites
 
-* You must have Python version 3.10 or newer installed on your system.
+* You must have Python 3.12 installed on your system.
+* You must install [uv](https://docs.astral.sh/uv/). On Windows, run `winget install --id astral-sh.uv`. On macOS or Linux, follow the uv installation guide.
 * You must install [FFmpeg](https://ffmpeg.org/) and ensure that it is available in your system PATH. You may alternatively define a custom path using the `FFMPEG_PATH` environment variable.
 
   * On Windows, install FFmpeg with the following command:
@@ -28,7 +29,7 @@ This is a Discord bot that generates speech in Morshu's voice by calling the [di
     ```
 
   * On Debian or Ubuntu, install FFmpeg with the following command:
-  
+
     ```
     sudo apt install ffmpeg
     ```
@@ -63,20 +64,24 @@ chmod +x setup.sh
 ./setup.sh
 ```
 
-The script creates a `.venv` virtual environment if one does not already exist. It installs all required dependencies and copies `.env.template` to `.env` on the first run. You must edit `.env` and set your `DISCORD_TOKEN` before starting the bot.
+The script runs `uv sync`, which creates the `.venv` virtual environment if needed and installs the locked dependencies. It copies `.env.template` to `.env` on the first run. You must edit `.env` and set your `DISCORD_TOKEN` before starting the bot.
 
 If you prefer to perform the setup manually, follow these steps:
 
 ```bash
 git clone https://github.com/Lempki/discord-bot-morshu.git
 cd discord-bot-morshu
-python -m venv .venv
-source .venv/bin/activate  # On Windows use: .venv\Scripts\activate
-pip install -r requirements.txt
+uv sync
 cp .env.template .env
 # Edit .env and set DISCORD_TOKEN and other values as needed.
-python bot.py
+uv run python bot.py
 ```
+
+### Development
+
+Run the tests with `uv run pytest`.
+Run every lint and format check with `uvx pre-commit run --all-files`, or install the hooks once with `uvx pre-commit install` so they run on each commit.
+The coding, prose, and commit conventions are documented in [discord-dev-standards](https://github.com/Lempki/discord-dev-standards).
 
 ### Docker
 
@@ -126,14 +131,30 @@ discord-bot-morshu/
 │   ├── audio/          # .ogg, .mp3, .wav — Git LFS
 │   ├── images/         # .png, .jpg, .gif, .webp — Git LFS
 │   └── videos/         # .mp4, .mov, .webm — Git LFS
+├── tests/              # Pytest suite. Runs in CI on every push.
 ├── .env.template       # Template for environment variables.
+├── pyproject.toml      # Project metadata and dependencies.
+├── uv.lock             # Locked dependency versions.
+├── ruff.toml           # Lint and format settings on top of the shared baseline.
 ├── setup.bat           # Windows setup script.
 ├── setup.sh            # macOS and Linux setup script.
 ├── Dockerfile
 ├── docker-compose.yml
-├── .dockerignore
-└── requirements.txt
+└── .dockerignore
 ```
+
+## Staying in sync with the template
+
+This repository does not maintain a git link to discord-bot-template.
+Instead, discord-bot-template's `.template-manifest.toml` lists the core files that this bot keeps identical to it.
+With both repositories cloned side by side, run this from this bot's directory to see which core files have drifted:
+
+```bash
+uvx --from git+https://github.com/Lempki/discord-dev-standards@v0.1.1 dev-standards template-check --template ../discord-bot-template --diff
+```
+
+Add `--apply` to copy the template's version over every drifted file, then review the result with `git diff` before committing.
+Keep bot-specific changes in files outside the manifest, such as `config.py`, `localization.py`, and `cogs/morshu.py`.
 
 ## Related services
 
@@ -143,4 +164,3 @@ The following services work alongside this bot and handle functionality that is 
 |---|---|
 | [discord-api-morshu](https://github.com/Lempki/discord-api-morshu) | Hosts the Morshu TTS engine. Accepts text and returns a synthesised WAV or video file. The source audio and sprite assets live here. |
 | [discord-api-media](https://github.com/Lempki/discord-api-media) | Resolves YouTube, SoundCloud, and Spotify track metadata and stream URLs. Bots call this instead of bundling yt-dlp directly. |
-
