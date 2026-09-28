@@ -31,9 +31,6 @@ services:
     environment:
       # One secret, read from this repository's .env, so the bot and the service always agree.
       DISCORD_API_SECRET: ${DISCORD_API_MORSHU_SECRET:?Set DISCORD_API_MORSHU_SECRET in .env}
-    volumes:
-      # The service reads morshu.wav from here.
-      - ../discord-api-morshu/assets:/data:ro
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 10s
