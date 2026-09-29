@@ -10,6 +10,9 @@ This is a Discord bot that generates speech in Morshu's voice by calling the [di
 | `/morshu <text>` | Joins your current voice channel and plays the generated audio. The bot leaves on its own when it is alone or after 10 minutes of silence. |
 | `/help` | Displays all loaded commands grouped by cog in an ephemeral embed. |
 
+Adding `admin` and `moderation` to `COGS_TO_LOAD` enables the template's moderation commands, including AutoMod management under `/admin automod`.
+See the [template README](https://github.com/Lempki/discord-bot-template#moderation-and-automod).
+
 ## Prerequisites
 
 * You must have Python 3.12 installed on your system.
@@ -41,11 +44,9 @@ The same privileged intents as the base template are required. See the [discord-
 
 ## Bot permissions
 
-All base permissions from the [discord-bot-template](https://github.com/Lempki/discord-bot-template) are required, plus the following addition:
-
-| Permission | Required for |
-|---|---|
-| Attach Files | Sending generated WAV files as Discord file attachments. |
+All base permissions from the [discord-bot-template](https://github.com/Lempki/discord-bot-template) are required.
+Attach Files, which `/generate` uses, is one of them.
+Manage Server and Moderate Members are needed only when the `admin` and `moderation` cogs are loaded.
 
 ## Setup
 
@@ -131,14 +132,16 @@ discord-bot-morshu/
 │   ├── morshu.py       # Morshu TTS commands (/generate, /morshu).
 │   ├── voice.py        # /join, /leave, and /skip. The bot leaves on its own when alone or idle.
 │   ├── media.py        # Per-server audio queue with YouTube, SoundCloud, and Spotify support.
-│   ├── admin.py        # /admin command group for per-guild configuration.
-│   ├── moderation.py   # /warn, /warnings, /clearwarning, /clearwarnings, /kick, /ban.
+│   ├── admin.py        # /admin command group, including /admin automod.
+│   ├── moderation.py   # /warn, /warnings, /clearwarning, /clearwarnings, /kick, /ban, and AutoMod escalation.
 │   └── template.py     # Reference cog inherited from discord-bot-template. Not loaded by default.
 ├── utils/
 │   ├── audio.py        # MediaAPIClient, URL helpers, and audio sources for files, bytes, and streams.
+│   ├── automod.py      # Creates and edits the AutoMod rules that the bot owns.
 │   ├── checks.py       # Command checks such as in_bot_channel(), and guild_of().
 │   ├── database.py     # Versioned SQLite schema, per-guild settings, and warnings.
 │   ├── i18n.py         # Picks each user's language and translates command descriptions.
+│   ├── moderation.py   # issue_warning(), shared by /warn and AutoMod escalation.
 │   ├── replies.py      # respond() and finish(), which never leave a command "thinking".
 │   ├── strings.py      # Every core message and command translation, in English and Finnish.
 │   └── voice.py        # Joins, plays in, and leaves voice channels for every cog.
