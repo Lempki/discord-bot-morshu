@@ -112,7 +112,7 @@ uv run python bot.py
 
 Run the tests with `uv run pytest`.
 Run every lint and format check with `uvx pre-commit run --all-files`, or install the hooks once with `uvx pre-commit install` so they run on each commit.
-The coding, prose, and commit conventions are documented in [discord-dev-standards](https://github.com/Lempki/discord-dev-standards).
+The coding, prose, and commit conventions are documented in [dev-standards](https://github.com/Lempki/dev-standards).
 
 ### Docker
 
@@ -201,7 +201,7 @@ Instead, discord-bot-template's `.template-manifest.toml` lists the core files t
 With both repositories cloned side by side, run this from this bot's directory to see which core files have drifted:
 
 ```bash
-uvx --from git+https://github.com/Lempki/discord-dev-standards@v0.1.3 dev-standards template-check --template ../discord-bot-template --diff
+uvx --from git+https://github.com/Lempki/dev-standards@v0.2.0 dev-standards template-check --template ../discord-bot-template --diff
 ```
 
 Add `--apply` to copy the template's version over every drifted file, then review the result with `git diff` before committing.
