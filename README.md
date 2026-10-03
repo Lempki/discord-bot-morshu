@@ -230,3 +230,8 @@ The following services work alongside this bot and handle functionality that is 
 |---|---|
 | [discord-api-morshu](https://github.com/Lempki/discord-api-morshu) | Hosts the Morshu TTS engine. Accepts text and returns a synthesised WAV or video file. The source audio and sprite assets live here. |
 | [discord-api-media](https://github.com/Lempki/discord-api-media) | Resolves YouTube, SoundCloud, and Spotify track metadata and stream URLs. Bots call this instead of bundling yt-dlp directly. |
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+You may use, change, and share it, as long as every copy keeps the copyright notice and the license text.
