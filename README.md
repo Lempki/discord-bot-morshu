@@ -178,9 +178,9 @@ discord-bot-morshu/
 │   ├── strings.py      # Every core message and command translation, in English and Finnish.
 │   └── voice.py        # Joins, plays in, and leaves voice channels for every cog.
 ├── assets/
-│   ├── audio/          # .ogg, .mp3, and .wav files, stored with Git LFS.
-│   ├── images/         # .png, .jpg, .gif, and .webp files, stored with Git LFS.
-│   └── videos/         # .mp4, .mov, and .webm files, stored with Git LFS.
+│   ├── audio/          # .ogg, .mp3, and .wav files.
+│   ├── images/         # .png, .jpg, .gif, and .webp files.
+│   └── videos/         # .mp4, .mov, and .webm files.
 ├── tests/              # Pytest suite. Runs in CI on pushes to main and on pull requests.
 ├── .env.template       # Template for environment variables.
 ├── pyproject.toml      # Project metadata and dependencies.
