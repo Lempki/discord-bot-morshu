@@ -6,11 +6,17 @@ This is a Discord bot that generates speech in Morshu's voice by calling the [di
 
 | Command | Description |
 |---|---|
-| `/generate <format> <text>` | Generates audio or video from the given text and sends it as a file attachment. `format` choices are `WAV audio` and `MP4 video`. A result over the server's upload limit is not sent. |
-| `/morshu <text>` | Joins your current voice channel and plays the generated audio. The bot leaves on its own when it is alone or after 10 minutes of silence. |
-| `/help` | Displays all loaded commands grouped by cog in an ephemeral embed. |
+| `/generate <format> <text>` | Generates audio or video from the given text and sends it as a file attachment. `format` choices are `WAV audio` and `MP4 video`. `text` holds up to 500 characters. A result over the server's upload limit is not sent. |
+| `/morshu <text>` | Joins your current voice channel and plays the generated audio. `text` holds up to 500 characters. The bot leaves on its own when it is alone or after 10 minutes of silence. |
+| `/help` | Lists the loaded commands you can use, grouped by cog, in an embed that only you see. |
 
-Adding `admin` and `moderation` to `COGS_TO_LOAD` enables the template's moderation commands, including AutoMod management under `/admin automod`.
+These are the commands of the default cogs, `help` and `morshu`.
+`/generate` and `/morshu` work only in servers.
+
+Adding `voice` to `COGS_TO_LOAD` adds `/join`, `/leave`, and `/skip`.
+Adding `admin` and `moderation` enables the template's moderation commands, including AutoMod management under `/admin automod`.
+With `admin` loaded, `/admin channel` can restrict `/generate`, `/morshu`, and the voice and media commands to one bot channel.
+Adding `events` gives new members the role set with `/admin autorole` and posts a welcome message in the bot channel, so load it together with `admin`.
 See the [template README](https://github.com/Lempki/discord-bot-template#moderation-and-automod).
 
 ## Prerequisites
@@ -40,13 +46,37 @@ See the [template README](https://github.com/Lempki/discord-bot-template#moderat
 
 ## Privileged intents
 
-The same privileged intents as the base template are required. See the [discord-bot-template](https://github.com/Lempki/discord-bot-template) repository for details.
+Server Members is the only privileged intent the bot uses.
+`bot.py` requests it at startup whatever cogs are loaded, and Discord refuses the connection when it is not enabled.
+Enable **Server Members Intent** under **Privileged Gateway Intents** on your application's **Bot** page in the [Discord Developer Portal](https://discord.com/developers/applications) before starting the bot.
+Only the `events` cog relies on it, for the auto-role and the welcome message on member join.
+
+The **Presence Intent** and the **Message Content Intent** are not needed and should stay disabled.
+The bot also requests the Auto Moderation Execution intent, which is not privileged and needs no portal setting.
 
 ## Bot permissions
 
-All base permissions from the [discord-bot-template](https://github.com/Lempki/discord-bot-template) are required.
-Attach Files, which `/generate` uses, is one of them.
-Manage Server and Moderate Members are needed only when the `admin` and `moderation` cogs are loaded.
+Use the **OAuth2 > URL Generator** in the Developer Portal to build the invite URL.
+Select the `bot` and `applications.commands` scopes, then select the permissions below.
+
+The default cogs, `help` and `morshu`, need these permissions.
+
+| Permission | Required for |
+|---|---|
+| View Channels | Reading channel state. |
+| Send Messages | Responding to commands. |
+| Attach Files | Sending the files that `/generate` creates. |
+| Connect | Joining a voice channel for `/morshu`. |
+| Speak | Playing the generated audio for `/morshu`. |
+
+The `voice` and `media` cogs need no further permissions.
+The other optional cogs add these permissions.
+
+| Cog | Additional permissions |
+|---|---|
+| `admin` | Manage Server, for managing the bot's AutoMod rules with `/admin automod`. |
+| `moderation` | Kick Members for `/kick`, Ban Members for `/ban`, and Moderate Members for the `timeout` warning action. The `kick` and `ban` warning actions use the first two. AutoMod escalation also needs Manage Server, because Discord only delivers AutoMod executions to bots that have it. |
+| `events` | Manage Roles, for giving new members the auto-role. |
 
 ## Setup
 
@@ -88,7 +118,7 @@ The coding, prose, and commit conventions are documented in [discord-dev-standar
 
 Alternatively, you can run the bot as a Docker container.
 
-1. Copy `.env.template` to `.env` and set `DISCORD_TOKEN`, `DISCORD_API_MORSHU_URL`, and `DISCORD_API_MORSHU_SECRET`.
+1. Copy `.env.template` to `.env` and set `DISCORD_TOKEN`, `DISCORD_API_MORSHU_URL`, and `DISCORD_API_MORSHU_SECRET`. Inside the container, `localhost` is the container itself, so the URL must point at an address the container can reach.
 2. Build and start the container:
 
    ```
@@ -96,7 +126,7 @@ Alternatively, you can run the bot as a Docker container.
    ```
 
 The container restarts automatically unless you stop it.
-The database lives on the `bot-data` volume, so settings and warnings survive rebuilds and `docker compose down`.
+The database lives at `/app/data/bot.db` on the `bot-data` volume, so settings and warnings survive rebuilds and `docker compose down`.
 Only `docker compose down -v` deletes it.
 
 To also run discord-api-morshu, clone it next to this repository and use the stack file instead:
@@ -108,6 +138,7 @@ docker compose -f compose.stack.yml up -d --build
 Add `--profile media` to also run discord-api-media, cloned next to this repository the same way.
 The stack builds each service from its sibling folder and connects them on a private network.
 It passes `DISCORD_API_MORSHU_SECRET`, and `DISCORD_API_MEDIA_SECRET` when the media profile is used, from this repository's `.env` to the matching service, so the bot and each service always agree.
+The bot keeps its database on the same `bot-data` volume as above.
 
 ## Configuration
 
@@ -115,10 +146,10 @@ The base configuration variables are documented in the [discord-bot-template](ht
 
 | Variable | Default | Description |
 |---|---|---|
-| `COGS_TO_LOAD` | `help,morshu` | Cogs to load at startup. Use `help,voice,morshu` to add voice channel commands, or `help,voice,media,morshu,admin,moderation` for the full feature set. |
+| `COGS_TO_LOAD` | `help` | Cogs to load at startup. `.env.template` sets `help,morshu`, which is this bot's default set. Use `help,voice,morshu` to add voice channel commands, or `help,voice,media,morshu,admin,moderation,events` for the full feature set. The `media` cog also needs `DISCORD_API_MEDIA_URL` and `DISCORD_API_MEDIA_SECRET`. |
 | `LOCALE` | `silent` | The fallback language for users whose Discord language the bot does not speak. Built-in values are `en` and `fi`. `silent` mutes public replies, such as generation progress and error notifications, while admin and moderator replies are still sent because only the person who ran the command sees them. |
-| `DISCORD_API_MORSHU_URL` | — | Base URL of the [discord-api-morshu](https://github.com/Lempki/discord-api-morshu) service. Required when the `morshu` cog is loaded. `compose.stack.yml` overrides this inside the stack. |
-| `DISCORD_API_MORSHU_SECRET` | — | Bearer token for the discord-api-morshu service. Must match `DISCORD_API_SECRET` in the service configuration. |
+| `DISCORD_API_MORSHU_URL` | Not set | Base URL of the [discord-api-morshu](https://github.com/Lempki/discord-api-morshu) service. `.env.template` sets `http://localhost:8002`. Required when the `morshu` cog is loaded, and the bot stops at startup without it. `compose.stack.yml` overrides this inside the stack. |
+| `DISCORD_API_MORSHU_SECRET` | Not set | Bearer token for the discord-api-morshu service. Must match `DISCORD_API_SECRET` in the service configuration, which requires at least 16 characters. |
 
 ## Project structure
 
@@ -134,6 +165,7 @@ discord-bot-morshu/
 │   ├── media.py        # Per-server audio queue with YouTube, SoundCloud, and Spotify support.
 │   ├── admin.py        # /admin command group, including /admin automod.
 │   ├── moderation.py   # /warn, /warnings, /clearwarning, /clearwarnings, /kick, /ban, and AutoMod escalation.
+│   ├── events.py       # Auto-role and welcome message on member join.
 │   └── template.py     # Reference cog inherited from discord-bot-template. Not loaded by default.
 ├── utils/
 │   ├── audio.py        # MediaAPIClient, URL helpers, and audio sources for files, bytes, and streams.
@@ -146,10 +178,10 @@ discord-bot-morshu/
 │   ├── strings.py      # Every core message and command translation, in English and Finnish.
 │   └── voice.py        # Joins, plays in, and leaves voice channels for every cog.
 ├── assets/
-│   ├── audio/          # .ogg, .mp3, .wav — Git LFS
-│   ├── images/         # .png, .jpg, .gif, .webp — Git LFS
-│   └── videos/         # .mp4, .mov, .webm — Git LFS
-├── tests/              # Pytest suite. Runs in CI on every push.
+│   ├── audio/          # .ogg, .mp3, and .wav files, stored with Git LFS.
+│   ├── images/         # .png, .jpg, .gif, and .webp files, stored with Git LFS.
+│   └── videos/         # .mp4, .mov, and .webm files, stored with Git LFS.
+├── tests/              # Pytest suite. Runs in CI on pushes to main and on pull requests.
 ├── .env.template       # Template for environment variables.
 ├── pyproject.toml      # Project metadata and dependencies.
 ├── uv.lock             # Locked dependency versions.
@@ -169,7 +201,7 @@ Instead, discord-bot-template's `.template-manifest.toml` lists the core files t
 With both repositories cloned side by side, run this from this bot's directory to see which core files have drifted:
 
 ```bash
-uvx --from git+https://github.com/Lempki/discord-dev-standards@v0.1.1 dev-standards template-check --template ../discord-bot-template --diff
+uvx --from git+https://github.com/Lempki/discord-dev-standards@v0.1.2 dev-standards template-check --template ../discord-bot-template --diff
 ```
 
 Add `--apply` to copy the template's version over every drifted file, then review the result with `git diff` before committing.

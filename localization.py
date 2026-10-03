@@ -6,7 +6,7 @@ Overrides are how a bot gets its own voice.
 Replies follow each user's Discord language.
 LOCALE in .env picks the fallback language, and LOCALE=silent mutes public replies.
 
-To add a language, add its Discord locale code to BOT_TEXT and COMMAND_TEXT.
+To add a language, add its Discord locale code to BOT_TEXT and BOT_COMMAND_TEXT.
 Examples of codes are "de" and "sv-SE".
 Any core text a language leaves out falls back to silence, and a test lists the gaps.
 """
@@ -34,13 +34,13 @@ class Strings(CoreStrings):
 BOT_TEXT: dict[str, dict[str, str]] = {
     "en": {
         "morshu_generating": "Generating...",
-        "morshu_empty": "Could not generate audio for that text.",
+        "morshu_empty": "Could not generate speech for that text.",
         "morshu_too_large": "The result is {size} MB, which is over this server's {limit} MB upload limit.",
         "section_morshu": "Morshu",
     },
     "fi": {
         "morshu_generating": "Luodaan...",
-        "morshu_empty": "Tekstistä ei voitu luoda ääntä.",
+        "morshu_empty": "Tekstistä ei voitu luoda puhetta.",
         "morshu_too_large": "Tulos on {size} Mt, mikä ylittää tämän palvelimen {limit} Mt:n latausrajan.",
         "section_morshu": "Morshu",
     },

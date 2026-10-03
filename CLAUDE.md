@@ -7,7 +7,7 @@ The shared conventions live in [discord-dev-standards](https://github.com/Lempki
 ## Services
 
 * [discord-api-morshu](https://github.com/Lempki/discord-api-morshu) generates the TTS audio and lip-synced video. This bot depends on it.
-* [discord-api-media](https://github.com/Lempki/discord-api-media) can optionally handle media conversion.
+* [discord-api-media](https://github.com/Lempki/discord-api-media) resolves YouTube, SoundCloud, and Spotify tracks. Only the optional media cog uses it.
 
 ## Commands
 
