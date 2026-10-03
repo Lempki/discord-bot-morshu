@@ -1,4 +1,4 @@
-"""Morshu speech through discord-api-morshu, sent as a file or spoken in a voice channel."""
+"""Morshu speech through api-morshu, sent as a file or spoken in a voice channel."""
 
 import io
 import logging
@@ -40,11 +40,11 @@ class MorshuCog(commands.Cog, name="Morshu"):
         )
 
     async def cog_unload(self) -> None:
-        """Closes the HTTP client of discord-api-morshu."""
+        """Closes the HTTP client of api-morshu."""
         await self._http.aclose()
 
     async def _synthesize(self, text: str, output: str) -> bytes:
-        """Asks discord-api-morshu to speak a text.
+        """Asks api-morshu to speak a text.
 
         Args:
             text: What Morshu says.

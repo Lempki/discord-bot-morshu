@@ -6,8 +6,8 @@ The shared conventions live in [discord-dev-standards](https://github.com/Lempki
 
 ## Services
 
-* [discord-api-morshu](https://github.com/Lempki/discord-api-morshu) generates the TTS audio and lip-synced video. This bot depends on it.
-* [discord-api-media](https://github.com/Lempki/discord-api-media) resolves YouTube, SoundCloud, and Spotify tracks. Only the optional media cog uses it.
+* [api-morshu](https://github.com/Lempki/api-morshu) generates the TTS audio and lip-synced video. This bot depends on it.
+* [api-media](https://github.com/Lempki/api-media) resolves YouTube, SoundCloud, and Spotify tracks. Only the optional media cog uses it.
 
 ## Commands
 
@@ -28,7 +28,7 @@ The shared conventions live in [discord-dev-standards](https://github.com/Lempki
 * discord-bot-template's `.template-manifest.toml` lists the core files that this bot keeps identical to it.
 * Those files are changed in the template first, then carried over here with `dev-standards template-check --apply`.
 * Bot-specific behavior belongs in files outside the manifest, such as `localization.py`, `compose.stack.yml`, and `cogs/morshu.py`.
-* `config.py` is generic. This bot reads discord-api-morshu with `bot.config.service("morshu")`, which maps to `DISCORD_API_MORSHU_URL` and `DISCORD_API_MORSHU_SECRET`.
+* `config.py` is generic. This bot reads api-morshu with `bot.config.service("morshu")`, which maps to `API_MORSHU_URL` and `API_MORSHU_SECRET`.
 
 ## Messages and languages
 
