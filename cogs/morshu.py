@@ -30,7 +30,7 @@ class MorshuCog(commands.Cog, name="Morshu"):
     """Morshu text-to-speech as WAV audio, lip-synced MP4 video, or live voice."""
 
     def __init__(self, bot: "BotApp") -> None:
-        # Raises ConfigError with the missing variable names, which stops the cog from loading.
+        # Raises ConfigError with the missing variable names, which stops the bot at startup.
         service = bot.config.service("morshu")
         self.bot = bot
         self._http = httpx.AsyncClient(
@@ -40,6 +40,7 @@ class MorshuCog(commands.Cog, name="Morshu"):
         )
 
     async def cog_unload(self) -> None:
+        """Closes the HTTP client of discord-api-morshu."""
         await self._http.aclose()
 
     async def _synthesize(self, text: str, output: str) -> bytes:
@@ -164,8 +165,10 @@ class MorshuCog(commands.Cog, name="Morshu"):
             log.warning(f"Playback in {guild} failed: {error}")
 
     async def cog_load(self) -> None:
+        """Logs that the cog is ready."""
         log.info(f"{self.qualified_name} cog loaded.")
 
 
 async def setup(bot: "BotApp") -> None:
+    """Adds the cog. discord.py calls this when the extension loads."""
     await bot.add_cog(MorshuCog(bot))
