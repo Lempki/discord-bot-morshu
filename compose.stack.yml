@@ -3,6 +3,10 @@
 # Add --profile media to also run api-media, cloned next to this repository the same way.
 # The services share a private network, so their ports are not published to the host.
 
+# The fixed project name keeps the containers and volumes the same, whatever this folder is called.
+# A downloaded release in a folder with a version in its name therefore finds the data of the previous one.
+name: discord-bot-morshu
+
 services:
   bot:
     build: .
