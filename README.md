@@ -6,8 +6,8 @@ This is a Discord bot that generates speech in Morshu's voice by calling the [ap
 
 | Command | Description |
 |---|---|
-| `/generate <format> <text>` | Generates audio or video from the given text and sends it as a file attachment. `format` choices are `WAV audio` and `MP4 video`. `text` holds up to 500 characters. A result over the server's upload limit is not sent. |
-| `/morshu <text>` | Joins your current voice channel and plays the generated audio. `text` holds up to 500 characters. The bot leaves on its own when it is alone or after 10 minutes of silence. |
+| `/generate <format> <text>` | Generates audio or video from the given text and sends it as a file attachment. `format` choices are `WAV audio` and `MP4 video`. `text` holds up to 500 characters. The text shows above the file exactly as typed, so moderators and moderation bots can see what was generated. It never pings anyone. A result over the server's upload limit is not sent. |
+| `/morshu <text>` | Joins your current voice channel and plays the generated audio. `text` holds up to 500 characters. The text also shows in the chat exactly as typed, without pinging anyone, so moderators can see what was spoken. The bot leaves on its own when it is alone or after 10 minutes of silence. |
 | `/help` | Lists the loaded commands you can use, grouped by cog, in an embed that only you see. |
 
 These are the commands of the default cogs, `help` and `morshu`.

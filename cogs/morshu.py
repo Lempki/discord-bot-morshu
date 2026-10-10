@@ -31,6 +31,35 @@ def _megabytes(size: int) -> float:
 _UPLOAD_ATTEMPTS = 3
 
 
+def _caption(text: str) -> str:
+    """Quotes the text that a generated file speaks, to show above the file.
+
+    Moderators and moderation bots can then see what was generated without opening the file.
+    Escaping shows the text exactly as typed, so formatting such as spoilers cannot hide words.
+    The caption has no wording of its own, so it shows even when LOCALE=silent mutes replies.
+    """
+    return f"> {discord.utils.escape_markdown(text)}"
+
+
+async def _reply_with_caption(interaction: discord.Interaction, caption: str) -> None:
+    """Replaces the "generating" message with the text that Morshu speaks in voice.
+
+    Speech in a voice channel leaves no trace in the chat otherwise.
+    A failed edit only costs the caption, so playback goes ahead and the failure is logged.
+    """
+    try:
+        await interaction.edit_original_response(
+            content=caption,
+            # The caption repeats user input, which must never ping anyone.
+            allowed_mentions=discord.AllowedMentions.none(),
+        )
+    except (discord.HTTPException, aiohttp.ClientError, TimeoutError) as error:
+        log.warning(f"Could not show the text that Morshu speaks: {error}")
+        return
+    # The caption is the reply, so finish() must never delete it.
+    mark_replied(interaction)
+
+
 async def _reply_has_file(interaction: discord.Interaction, filename: str) -> bool:
     """Asks Discord whether the command's reply holds the file."""
     try:
@@ -41,7 +70,7 @@ async def _reply_has_file(interaction: discord.Interaction, filename: str) -> bo
 
 
 async def _reply_with_file(
-    interaction: discord.Interaction, data: bytes, filename: str
+    interaction: discord.Interaction, data: bytes, filename: str, caption: str
 ) -> bool:
     """Puts a file into the command's reply, in place of the "generating" message.
 
@@ -52,6 +81,7 @@ async def _reply_with_file(
         interaction: The deferred interaction whose reply receives the file.
         data: The file contents.
         filename: The name the file gets in Discord.
+        caption: The text shown above the file.
 
     Returns:
         Whether the reply holds the file.
@@ -59,7 +89,9 @@ async def _reply_with_file(
     for attempt in range(1, _UPLOAD_ATTEMPTS + 1):
         try:
             await interaction.edit_original_response(
-                content=None,
+                content=caption,
+                # The caption repeats user input, which must never ping anyone.
+                allowed_mentions=discord.AllowedMentions.none(),
                 attachments=[discord.File(io.BytesIO(data), filename=filename)],
             )
         except (aiohttp.ClientConnectionError, TimeoutError) as error:
@@ -156,7 +188,7 @@ class MorshuCog(commands.Cog, name="Morshu"):
             return
 
         filename = "morshu.mp4" if output.value == "video" else "morshu.wav"
-        if await _reply_with_file(interaction, data, filename):
+        if await _reply_with_file(interaction, data, filename, _caption(text)):
             # The file is the reply, so finish() must never delete it.
             mark_replied(interaction)
             log.info(f"Sent a {output.value} file for '{text[:40]}' in {guild}.")
@@ -202,6 +234,7 @@ class MorshuCog(commands.Cog, name="Morshu"):
         vc = await self.bot.voice_presence.connect(channel)
         if vc.is_playing():
             vc.stop()
+        await _reply_with_caption(interaction, _caption(text))
         # Playback lasts longer than the interaction should stay open, so the command ends first.
         await finish(interaction)
         log.info(f"Speaking '{text[:40]}' in {channel.name} of {guild}.")
