@@ -1,6 +1,6 @@
 [project]
 name = "discord-bot-morshu"
-version = "2.3.0"
+version = "2.4.0"
 license = "MIT"
 license-files = ["LICENSE"]
 description = "A Discord bot that generates Morshu TTS audio and lip-synced video via api-morshu, with voice channel playback and file attachment delivery."
