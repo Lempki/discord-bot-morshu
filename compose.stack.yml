@@ -1,4 +1,6 @@
-# Runs the bot together with the api-* services it uses, built from the sibling repository folders.
+# Runs the bot together with the api-* services it uses.
+# A downloaded release runs the images that GitHub publishes for each release, named under image.
+# A Git clone builds the images from this folder and the sibling repository folders instead.
 # Clone api-morshu next to this repository, then run: docker compose -f compose.stack.yml up --build
 # Add --profile media to also run api-media, cloned next to this repository the same way.
 # The services share a private network, so their ports are not published to the host.
@@ -9,6 +11,7 @@ name: discord-bot-morshu
 
 services:
   bot:
+    image: ghcr.io/lempki/discord-bot-morshu:latest
     build: .
     env_file:
       - .env
@@ -27,6 +30,7 @@ services:
     restart: unless-stopped
 
   morshu:
+    image: ghcr.io/lempki/api-morshu:latest
     build: ../api-morshu
     env_file:
       # Optional settings. The file may be absent.
@@ -44,6 +48,7 @@ services:
     restart: unless-stopped
 
   media:
+    image: ghcr.io/lempki/api-media:latest
     build: ../api-media
     profiles: ["media"]
     env_file:
