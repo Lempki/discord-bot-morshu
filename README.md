@@ -267,7 +267,7 @@ The following services work alongside this bot and handle functionality that is 
 | Service | Description |
 |---|---|
 | [api-morshu](https://github.com/Lempki/api-morshu) | Hosts the Morshu TTS engine. Accepts text and returns a synthesised WAV or video file. The source audio and sprite assets live here. |
-| [api-media](https://github.com/Lempki/api-media) | Resolves YouTube, SoundCloud, and Spotify track metadata and stream URLs. Bots call this instead of bundling yt-dlp directly. |
+| [api-media](https://github.com/Lempki/api-media) | Resolves YouTube, SoundCloud, and Spotify track metadata, and streams their audio for playback. Bots call this instead of bundling yt-dlp directly. |
 
 ## License
 
