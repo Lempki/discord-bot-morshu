@@ -27,6 +27,7 @@ class Strings(CoreStrings):
     morshu_generating: str = ""
     morshu_empty: str = ""
     morshu_too_large: str = ""
+    morshu_send_failed: str = ""
     section_morshu: str = ""
 
 
@@ -36,12 +37,14 @@ BOT_TEXT: dict[str, dict[str, str]] = {
         "morshu_generating": "Generating...",
         "morshu_empty": "Could not generate speech for that text.",
         "morshu_too_large": "The result is {size} MB, which is over this server's {limit} MB upload limit.",
+        "morshu_send_failed": "The file did not reach Discord. Try again.",
         "section_morshu": "Morshu",
     },
     "fi": {
         "morshu_generating": "Luodaan...",
         "morshu_empty": "Tekstistä ei voitu luoda puhetta.",
         "morshu_too_large": "Tulos on {size} Mt, mikä ylittää tämän palvelimen {limit} Mt:n latausrajan.",
+        "morshu_send_failed": "Tiedosto ei päässyt Discordiin. Yritä uudelleen.",
         "section_morshu": "Morshu",
     },
 }

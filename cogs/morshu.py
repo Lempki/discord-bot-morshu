@@ -4,6 +4,7 @@ import io
 import logging
 from typing import TYPE_CHECKING
 
+import aiohttp
 import discord
 import httpx
 from discord import app_commands
@@ -24,6 +25,50 @@ _MEGABYTE = 1024 * 1024
 def _megabytes(size: int) -> float:
     """Returns a size in bytes as megabytes, rounded to one decimal."""
     return round(size / _MEGABYTE, 1)
+
+
+# Discord sometimes closes the connection after it stored an upload, before it answers.
+_UPLOAD_ATTEMPTS = 3
+
+
+async def _reply_has_file(interaction: discord.Interaction, filename: str) -> bool:
+    """Asks Discord whether the command's reply holds the file."""
+    try:
+        reply = await interaction.original_response()
+    except (discord.HTTPException, aiohttp.ClientError, TimeoutError):
+        return False
+    return any(attachment.filename == filename for attachment in reply.attachments)
+
+
+async def _reply_with_file(
+    interaction: discord.Interaction, data: bytes, filename: str
+) -> bool:
+    """Puts a file into the command's reply, in place of the "generating" message.
+
+    A dropped connection is retried, because editing the reply again never posts a second file.
+    When every attempt fails, Discord is asked whether the file arrived anyway.
+
+    Args:
+        interaction: The deferred interaction whose reply receives the file.
+        data: The file contents.
+        filename: The name the file gets in Discord.
+
+    Returns:
+        Whether the reply holds the file.
+    """
+    for attempt in range(1, _UPLOAD_ATTEMPTS + 1):
+        try:
+            await interaction.edit_original_response(
+                content=None,
+                attachments=[discord.File(io.BytesIO(data), filename=filename)],
+            )
+        except (aiohttp.ClientConnectionError, TimeoutError) as error:
+            log.warning(
+                f"Attempt {attempt} to send {filename} lost the connection: {error}"
+            )
+            continue
+        return True
+    return await _reply_has_file(interaction, filename)
 
 
 class MorshuCog(commands.Cog, name="Morshu"):
@@ -111,12 +156,15 @@ class MorshuCog(commands.Cog, name="Morshu"):
             return
 
         filename = "morshu.mp4" if output.value == "video" else "morshu.wav"
-        await interaction.followup.send(
-            file=discord.File(io.BytesIO(data), filename=filename)
-        )
-        # The file is the reply, so finish() must never delete it.
-        mark_replied(interaction)
-        log.info(f"Sent a {output.value} file for '{text[:40]}' in {guild}.")
+        if await _reply_with_file(interaction, data, filename):
+            # The file is the reply, so finish() must never delete it.
+            mark_replied(interaction)
+            log.info(f"Sent a {output.value} file for '{text[:40]}' in {guild}.")
+            return
+        log.warning(f"The {output.value} file for '{text[:40]}' did not reach Discord.")
+        private = self.bot.strings_for(interaction, private=True)
+        await respond(interaction, private.morshu_send_failed, ephemeral=True)
+        await finish(interaction)
 
     @app_commands.command(name="morshu")
     @app_commands.guild_only()
