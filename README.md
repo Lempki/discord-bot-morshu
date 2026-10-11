@@ -13,6 +13,7 @@ This is a Discord bot that generates speech in Morshu's voice by calling the [ap
 
 These are the commands of the default cogs, `help` and `morshu`.
 `/generate` and `/morshu` work only in servers.
+Each member can run them twice within 20 seconds, because speech takes the most CPU of anything the bot does.
 
 Adding `voice` to `COGS_TO_LOAD` adds `/join`, `/leave`, and `/skip`.
 Adding `admin` and `moderation` enables the template's moderation commands, including AutoMod management under `/admin automod`.

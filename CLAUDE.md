@@ -37,6 +37,8 @@ Read it before changing code. When the repositories are cloned side by side, the
   Name a member only in a message that is not a reply, such as the player's now-playing line, and never ping for it.
 * Never hard-code user-facing text in a cog. Add a field to `Strings` in `localization.py`, give it text in every language, and send it with `respond()`.
 * Pick the language with `self.bot.strings_for(interaction)`. Pass `private=True` for ephemeral admin and moderator replies, which stay on even when `LOCALE=silent`.
+* A command that starts work, such as a download or a generation, gets a per-member `app_commands.checks.cooldown`.
+  The bot answers a member who is too fast with the private `cooldown` text.
 * A command that defers must end with a reply or with `finish(interaction)`, so it never keeps showing "is thinking...".
 * A reply sent without `respond()`, such as a file follow-up, must be followed by `mark_replied(interaction)`.
 * A command's docstring is its Discord description. Keep it under 100 characters, describe every option, and add the Finnish translation of each text to `BOT_COMMAND_TEXT`.
