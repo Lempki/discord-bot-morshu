@@ -30,6 +30,10 @@ def _megabytes(size: int) -> float:
 # Discord sometimes closes the connection after it stored an upload, before it answers.
 _UPLOAD_ATTEMPTS = 3
 
+# Speech takes the most CPU of anything the bots do.
+# So one member may generate this many times within the period.
+GENERATE_RATE, GENERATE_PER_SECONDS = 2, 20.0
+
 
 def _caption(text: str) -> str:
     """Quotes the text that a generated file speaks, to show above the file.
@@ -142,6 +146,7 @@ class MorshuCog(commands.Cog, name="Morshu"):
     @app_commands.command(name="generate")
     @app_commands.guild_only()
     @in_bot_channel()
+    @app_commands.checks.cooldown(GENERATE_RATE, GENERATE_PER_SECONDS)
     @app_commands.rename(output="format")
     @app_commands.describe(
         output="The file type to create.",
@@ -201,6 +206,7 @@ class MorshuCog(commands.Cog, name="Morshu"):
     @app_commands.command(name="morshu")
     @app_commands.guild_only()
     @in_bot_channel()
+    @app_commands.checks.cooldown(GENERATE_RATE, GENERATE_PER_SECONDS)
     @app_commands.describe(text="What Morshu says, up to 500 characters.")
     async def morshu(
         self, interaction: discord.Interaction, text: app_commands.Range[str, 1, 500]
