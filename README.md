@@ -332,6 +332,12 @@ The following services work alongside this bot and handle functionality that is 
 | [api-morshu](https://github.com/Lempki/api-morshu) | Hosts the Morshu TTS engine. Accepts text and returns a synthesised WAV or video file. The source audio and sprite assets live here. |
 | [api-media](https://github.com/Lempki/api-media) | Resolves YouTube, SoundCloud, and Spotify track metadata, and streams their audio for playback. Bots call this instead of bundling yt-dlp directly. |
 
+## Privacy and terms
+
+The public Morshu follows its [privacy policy](PRIVACY.md) and [terms of service](TERMS.md).
+In short, Morshu keeps none of the texts it speaks, stores nothing about members, and keeps only short technical logs.
+Someone who runs their own copy is responsible for their own copy's privacy.
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).

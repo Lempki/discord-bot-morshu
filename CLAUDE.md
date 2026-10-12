@@ -44,3 +44,9 @@ Read it before changing code. When the repositories are cloned side by side, the
 * A command's docstring is its Discord description. Keep it under 100 characters, describe every option, and add the Finnish translation of each text to `BOT_COMMAND_TEXT`.
 * Voice goes through `self.bot.voice_presence`, which joins, plays, and leaves idle or empty channels. `cogs/morshu.py` plays generated audio with `bytes_source()`.
 * `uv run pytest` fails when a language misses a message or a command translation.
+
+## Privacy
+
+* `PRIVACY.md` and `TERMS.md` are the public bot's privacy policy and terms, which the Discord Developer Portal links to.
+* Never write the texts that members make Morshu say to a log or to the database, because the privacy policy promises that Morshu keeps none. Log a text's length instead.
+* A change to what the bot stores, logs, or sends elsewhere must update `PRIVACY.md` and its effective date in the same change.
