@@ -48,10 +48,10 @@ See the [template README](https://github.com/Lempki/discord-bot-template#moderat
 
 ## Privileged intents
 
-Server Members is the only privileged intent the bot uses.
-`bot.py` requests it at startup whatever cogs are loaded, and Discord refuses the connection when it is not enabled.
-Enable **Server Members Intent** under **Privileged Gateway Intents** on your application's **Bot** page in the [Discord Developer Portal](https://discord.com/developers/applications) before starting the bot.
-Only the `events` cog relies on it, for the auto-role and the welcome message on member join.
+With its default cogs, `help` and `morshu`, the bot needs no privileged intent, so leave all of them disabled.
+Adding `events` to `COGS_TO_LOAD` makes the bot ask for Server Members, for the auto-role and the welcome message on member join.
+Then enable **Server Members Intent** under **Privileged Gateway Intents** on your application's **Bot** page in the [Discord Developer Portal](https://discord.com/developers/applications) before starting the bot, or Discord refuses the connection.
+A verified bot needs Discord's approval for every privileged intent it asks for.
 
 The **Presence Intent** and the **Message Content Intent** are not needed and should stay disabled.
 The bot also requests the Auto Moderation Execution intent, which is not privileged and needs no portal setting.
