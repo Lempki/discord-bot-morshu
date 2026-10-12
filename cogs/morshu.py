@@ -196,9 +196,14 @@ class MorshuCog(commands.Cog, name="Morshu"):
         if await _reply_with_file(interaction, data, filename, _caption(text)):
             # The file is the reply, so finish() must never delete it.
             mark_replied(interaction)
-            log.info(f"Sent a {output.value} file for '{text[:40]}' in {guild}.")
+            # The log names no text, so the privacy policy can say that Morshu keeps none.
+            log.info(
+                f"Sent a {output.value} file of {len(text)} characters in {guild}."
+            )
             return
-        log.warning(f"The {output.value} file for '{text[:40]}' did not reach Discord.")
+        log.warning(
+            f"The {output.value} file of {len(text)} characters did not reach Discord."
+        )
         private = self.bot.strings_for(interaction, private=True)
         await respond(interaction, private.morshu_send_failed, ephemeral=True)
         await finish(interaction)
@@ -243,7 +248,7 @@ class MorshuCog(commands.Cog, name="Morshu"):
         await _reply_with_caption(interaction, _caption(text))
         # Playback lasts longer than the interaction should stay open, so the command ends first.
         await finish(interaction)
-        log.info(f"Speaking '{text[:40]}' in {channel.name} of {guild}.")
+        log.info(f"Speaking {len(text)} characters in {channel.name} of {guild}.")
         try:
             await self.bot.voice_presence.play(
                 vc, bytes_source(data, self.bot.config.ffmpeg_path)
