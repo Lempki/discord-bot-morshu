@@ -9,6 +9,14 @@
 # A downloaded release in a folder with a version in its name therefore finds the data of the previous one.
 name: discord-bot-morshu
 
+# Docker keeps at most two log files of 5 MB per container and overwrites the oldest.
+# Without a limit, a log grows until the container is recreated.
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "5m"
+    max-file: "2"
+
 services:
   bot:
     image: ghcr.io/lempki/discord-bot-morshu:latest
@@ -28,6 +36,7 @@ services:
         condition: service_healthy
         required: false
     restart: unless-stopped
+    logging: *logging
 
   morshu:
     image: ghcr.io/lempki/api-morshu:latest
@@ -46,6 +55,7 @@ services:
       # Its startup loads a model, which takes longer than the other services.
       retries: 12
     restart: unless-stopped
+    logging: *logging
 
   media:
     image: ghcr.io/lempki/api-media:latest
@@ -67,6 +77,7 @@ services:
       timeout: 5s
       retries: 6
     restart: unless-stopped
+    logging: *logging
 
 volumes:
   bot-data:
