@@ -8,14 +8,14 @@ This is a Discord bot that generates speech in Morshu's voice by calling the api
 |---|---|
 | `/generate <format> <text>` | Generates audio or video from the given text and sends it as a file attachment. `format` choices are `WAV audio` and `MP4 video`. `text` holds up to 500 characters. The text shows above the file exactly as typed, so moderators and moderation bots can see what was generated. It never pings anyone. A result over the server's upload limit is not sent. |
 | `/morshu <text>` | Joins your current voice channel and plays the generated audio. `text` holds up to 500 characters. The text also shows in the chat exactly as typed, without pinging anyone, so moderators can see what was spoken. The bot leaves on its own when it is alone or after 10 minutes of silence. |
-| `/help` | Lists the loaded commands you can use, grouped by cog, in an embed that only you see. |
+| `/help` | Shows a short guide to Morshu and the commands you can use, with links to the privacy policy and terms, in an embed that only you see. |
 | `/about` | Shows the bot's version, how long it has been online, its response time, and a link to its source code, in a reply that only you see. |
 
 These are the commands of the default cogs, `help` and `morshu`.
 `/generate` and `/morshu` work only in servers.
 Each member can run them twice within 20 seconds, because speech takes the most CPU of anything the bot does.
 
-Adding `voice` to `COGS_TO_LOAD` adds `/join`, `/leave`, and `/skip`.
+Adding `voice` to `COGS_TO_LOAD` adds `/voice join`, `/voice leave`, and `/voice stop`, which stops a speech that plays.
 Adding `admin` and `moderation` enables the template's moderation commands, including AutoMod management under `/admin automod`.
 With `admin` loaded, `/admin channel` can restrict `/generate`, `/morshu`, and the voice and media commands to one bot channel.
 Adding `events` gives new members the role set with `/admin autorole` and posts a welcome message in the bot channel, so load it together with `admin`.

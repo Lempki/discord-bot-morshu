@@ -29,6 +29,7 @@ class Strings(CoreStrings):
     morshu_too_large: str = ""
     morshu_send_failed: str = ""
     section_morshu: str = ""
+    guide_morshu: str = ""
 
 
 # This bot's texts per language code. They override core texts that share a field name.
@@ -39,6 +40,8 @@ BOT_TEXT: dict[str, dict[str, str]] = {
         "morshu_too_large": "The result is {size} MB, which is over this server's {limit} MB upload limit.",
         "morshu_send_failed": "The file did not reach Discord. Try again.",
         "section_morshu": "Morshu",
+        "help_intro": "Morshu speaks any text in his own voice, in your voice channel or as a file. Each part below explains one of his features.",
+        "guide_morshu": "`/morshu` speaks your text in your voice channel, and `/generate` sends it as a WAV file or a lip-synced MP4 video. A text holds up to 500 characters, and it shows in the chat, so everyone sees what Morshu said. Morshu keeps none of your texts: [privacy policy](https://github.com/Lempki/discord-bot-morshu/blob/main/PRIVACY.md) and [terms](https://github.com/Lempki/discord-bot-morshu/blob/main/TERMS.md).",
     },
     "fi": {
         "morshu_generating": "Luodaan...",
@@ -46,6 +49,8 @@ BOT_TEXT: dict[str, dict[str, str]] = {
         "morshu_too_large": "Tulos on {size} Mt, mikä ylittää tämän palvelimen {limit} Mt:n latausrajan.",
         "morshu_send_failed": "Tiedosto ei päässyt Discordiin. Yritä uudelleen.",
         "section_morshu": "Morshu",
+        "help_intro": "Morshu puhuu minkä tahansa tekstin omalla äänellään, äänikanavallasi tai tiedostona. Jokainen alla oleva osa kertoo yhdestä hänen ominaisuudestaan.",
+        "guide_morshu": "`/morshu` puhuu tekstisi äänikanavallasi, ja `/generate` lähettää sen WAV-tiedostona tai huulisynkronoituna MP4-videona. Tekstiin mahtuu 500 merkkiä, ja se näkyy keskustelussa, joten kaikki näkevät, mitä Morshu sanoi. Morshu ei säilytä tekstejäsi: [tietosuojaseloste](https://github.com/Lempki/discord-bot-morshu/blob/main/PRIVACY.md) ja [käyttöehdot](https://github.com/Lempki/discord-bot-morshu/blob/main/TERMS.md).",
     },
 }
 
