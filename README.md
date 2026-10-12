@@ -163,7 +163,7 @@ In a downloaded release, the `update` action takes these steps:
 The `schedule` action runs this update every night at 04:00.
 On Windows it adds a task to the Task Scheduler, which runs as soon as the computer is on again when it was off or asleep at that time.
 On macOS and Linux it adds a line to your crontab.
-Each scheduled update writes what it did into `update.log` in the project folder.
+Each scheduled update writes what it did into `update.log` in the project folder. With `UPDATE_WEBHOOK_URL` in `.env` set to a Discord webhook, an update that installs a new release or fails also posts a short message to that webhook's channel, naming the new versions or the problem. A night without a new release posts nothing. To get a webhook, open a channel's settings in Discord, choose Integrations, then Webhooks, then New Webhook, and copy its URL.
 
 A private image needs a GitHub sign-in.
 The first download asks for a [token with the `read:packages` scope](https://github.com/settings/tokens/new?scopes=read:packages&description=Docker+updates), which Docker then remembers.
