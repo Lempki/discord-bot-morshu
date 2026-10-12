@@ -1,6 +1,6 @@
 # discord-bot-morshu
 
-This is a Discord bot that generates speech in Morshu's voice by calling the [api-morshu](https://github.com/Lempki/api-morshu) API. This project is based on the [discord-bot-template](https://github.com/Lempki/discord-bot-template) repository, which provides the core architecture.
+This is a Discord bot that generates speech in Morshu's voice by calling the api-morshu API, a private speech service. This project is based on the [discord-bot-template](https://github.com/Lempki/discord-bot-template) repository, which provides the core architecture.
 
 ## Commands
 
@@ -242,7 +242,7 @@ The base configuration variables are documented in the [discord-bot-template](ht
 |---|---|---|
 | `COGS_TO_LOAD` | `help` | Cogs to load at startup. `.env.template` sets `help,morshu`, which is this bot's default set. Use `help,voice,morshu` to add voice channel commands, or `help,voice,media,morshu,admin,moderation,events` for the full feature set. The `media` cog also needs `API_MEDIA_URL` and `API_MEDIA_SECRET`. |
 | `LOCALE` | `silent` | The fallback language for users whose Discord language the bot does not speak. Built-in values are `en` and `fi`. `silent` mutes public replies, such as generation progress and error notifications, while admin and moderator replies are still sent because only the person who ran the command sees them. |
-| `API_MORSHU_URL` | Not set | Base URL of the [api-morshu](https://github.com/Lempki/api-morshu) service. `.env.template` sets `http://localhost:8002`. Required when the `morshu` cog is loaded, and the bot stops at startup without it. `compose.stack.yml` overrides this inside the stack. |
+| `API_MORSHU_URL` | Not set | Base URL of the api-morshu service. `.env.template` sets `http://localhost:8002`. Required when the `morshu` cog is loaded, and the bot stops at startup without it. `compose.stack.yml` overrides this inside the stack. |
 | `API_MORSHU_SECRET` | Not set | Bearer token for the api-morshu service. Must match `API_SECRET` in the service configuration, which requires at least 16 characters. |
 | `HEARTBEAT_URL` | Not set | The ping URL of a heartbeat service, such as healthchecks.io, which alerts you when the bot stops reporting that it is online. See [Offline alerts](#offline-alerts). |
 
@@ -326,11 +326,12 @@ The tests list every message or command text a language is missing, and they fai
 ## Related services
 
 The following services work alongside this bot and handle functionality that is managed centrally rather than bundled in each bot repository.
+They are private, so the bot runs only together with its owner's copy of api-morshu.
 
 | Service | Description |
 |---|---|
-| [api-morshu](https://github.com/Lempki/api-morshu) | Hosts the Morshu TTS engine. Accepts text and returns a synthesised WAV or video file. The source audio and sprite assets live here. |
-| [api-media](https://github.com/Lempki/api-media) | Resolves YouTube, SoundCloud, and Spotify track metadata, and streams their audio for playback. Bots call this instead of bundling yt-dlp directly. |
+| api-morshu | Hosts the Morshu TTS engine. Accepts text and returns a synthesised WAV or video file. The source audio and sprite assets live here. |
+| api-media | Resolves YouTube, SoundCloud, and Spotify track metadata, and streams their audio for playback. Bots call this instead of bundling yt-dlp directly. |
 
 ## Privacy and terms
 

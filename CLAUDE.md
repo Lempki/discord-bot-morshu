@@ -7,8 +7,10 @@ Read it before changing code. When the repositories are cloned side by side, the
 
 ## Services
 
-* [api-morshu](https://github.com/Lempki/api-morshu) generates the TTS audio and lip-synced video. This bot depends on it.
-* [api-media](https://github.com/Lempki/api-media) resolves YouTube, SoundCloud, and Spotify tracks. Only the optional media cog uses it.
+Both services are private repositories, and their Docker images are private packages.
+
+* api-morshu generates the TTS audio and lip-synced video. This bot depends on it.
+* api-media resolves YouTube, SoundCloud, and Spotify tracks. Only the optional media cog uses it.
 
 ## Commands
 
