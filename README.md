@@ -77,7 +77,7 @@ The other optional cogs add these permissions.
 | Cog | Additional permissions |
 |---|---|
 | `admin` | Manage Server, for managing the bot's AutoMod rules with `/admin automod`. |
-| `moderation` | Kick Members for `/kick`, Ban Members for `/ban`, and Moderate Members for the `timeout` warning action. The `kick` and `ban` warning actions use the first two. AutoMod escalation also needs Manage Server, because Discord only delivers AutoMod executions to bots that have it. |
+| `moderation` | Kick Members for `/kick`, Ban Members for `/ban`, Moderate Members for `/timeout`, `/untimeout`, and the `timeout` warning action, and Manage Messages for `/purge`. The `kick` and `ban` warning actions use the first two. AutoMod escalation also needs Manage Server, because Discord only delivers AutoMod executions to bots that have it. |
 | `events` | Manage Roles, for giving new members the auto-role. |
 
 ## Setup
