@@ -245,6 +245,7 @@ The base configuration variables are documented in the [discord-bot-template](ht
 | `API_MORSHU_URL` | Not set | Base URL of the api-morshu service. `.env.template` sets `http://localhost:8002`. Required when the `morshu` cog is loaded, and the bot stops at startup without it. `compose.stack.yml` overrides this inside the stack. |
 | `API_MORSHU_SECRET` | Not set | Bearer token for the api-morshu service. Must match `API_SECRET` in the service configuration, which requires at least 16 characters. |
 | `HEARTBEAT_URL` | Not set | The ping URL of a heartbeat service, such as healthchecks.io, which alerts you when the bot stops reporting that it is online. See [Offline alerts](#offline-alerts). |
+| `UPDATE_WEBHOOK_URL` | Not set | A Discord webhook that hears when a nightly update installs a new release or fails. It works like a password. |
 
 ## Project structure
 
@@ -254,12 +255,13 @@ discord-bot-morshu/
 ├── config.py            # Reads settings and api-* service URLs from the environment.
 ├── localization.py      # This bot's own messages and translations, layered on the core ones.
 ├── cogs/
-│   ├── help.py          # /help and /about. /help lists all loaded commands grouped by cog.
+│   ├── help.py          # /help, a short guide to the bot's features, and /about.
 │   ├── morshu.py        # Morshu TTS commands (/generate, /morshu).
-│   ├── voice.py         # /join, /leave, and /skip. The bot leaves on its own when alone or idle.
-│   ├── media.py         # Per-server audio queue with YouTube, SoundCloud, and Spotify support.
+│   ├── voice.py         # /voice join, leave, and stop. The bot leaves on its own when alone or idle.
+│   ├── media.py         # /play, /music, and /queue, with a per-server queue and the now-playing panel.
+│   ├── info.py          # /info server, member, and avatar.
 │   ├── admin.py         # /admin command group, including /admin automod.
-│   ├── moderation.py    # /warn, /warnings, /clearwarning, /clearwarnings, /kick, /ban, and AutoMod escalation.
+│   ├── moderation.py    # /warn, /warnings, /timeout, /untimeout, /kick, /ban, /purge, the right-click Warn and Report, and AutoMod escalation.
 │   ├── events.py        # Auto-role and welcome message on member join.
 │   └── template.py      # Reference cog inherited from discord-bot-template. Not loaded by default.
 ├── utils/
