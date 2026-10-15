@@ -136,7 +136,7 @@ The script also takes an action, such as `run.bat stop` on Windows or `./run.sh 
 | `stop` | Stops the containers. They stay stopped until the next start. |
 | `status` | Shows whether each container runs and is healthy, its version, and whether updates are automatic. |
 | `logs` | Follows the logs. Press Ctrl+C to stop following. |
-| `update` | Installs the newest release. In a Git clone, it pulls the latest code, rebuilds on fresh base images, and restarts. |
+| `update` | Installs the newest release. In a Git clone, it pulls the latest code, rebuilds on fresh base images, and restarts, then deletes the build cache that no build used for a week. |
 | `schedule` | Installs new releases automatically every night at 04:00. |
 | `unschedule` | Stops installing new releases automatically. |
 | `backup` | Copies the bot's database into the `backups` folder. Every update does it too. |
@@ -159,6 +159,7 @@ In a downloaded release, the `update` action takes these steps:
 3. When the bot's image is new, it replaces the run, setup, and compose files with the ones from the new release. `.env` and the other settings stay as they are.
 4. It restarts everything and waits until every service is ready.
 5. When the new release fails to start, it puts the previous images and files back and starts them again. Later updates skip that release until a newer one appears.
+6. It deletes the images that nothing uses anymore, such as the versions that the new release replaced.
 
 The `schedule` action runs this update every night at 04:00.
 On Windows it adds a task to the Task Scheduler, which runs as soon as the computer is on again when it was off or asleep at that time.
@@ -233,6 +234,10 @@ The stack builds each service from its sibling folder and connects them on a pri
 It also names each service's published image, which a downloaded release runs instead of building it.
 It passes `API_MORSHU_SECRET`, and `API_MEDIA_SECRET` when the media profile is used, from this repository's `.env` to the matching service, so the bot and each service always agree.
 The bot keeps its database on the same `bot-data` volume as above.
+
+Docker keeps at most two log files of 5 MB per container and overwrites the oldest.
+The bot's container may use at most 512 MB of memory, and each api-* service in the stack 1 GB.
+That is several times their normal use, so only a leak reaches it, and the container that leaks restarts on its own.
 
 ## Configuration
 
