@@ -71,14 +71,17 @@ The default cogs, `help` and `morshu`, need these permissions.
 | Connect | Joining a voice channel for `/morshu`. |
 | Speak | Playing the generated audio for `/morshu`. |
 
-The `voice` and `media` cogs need no further permissions.
+The `voice` cog needs no further permissions.
 The other optional cogs add these permissions.
 
 | Cog | Additional permissions |
 |---|---|
+| `media` | Embed Links, for the now-playing panel. Set Voice Channel Status is optional, for showing the playing song under the voice channel's name. |
 | `admin` | Manage Server, for managing the bot's AutoMod rules with `/admin automod`. |
-| `moderation` | Kick Members for `/kick`, Ban Members for `/ban`, Moderate Members for `/timeout`, `/untimeout`, and the `timeout` warning action, and Manage Messages for `/purge`. The `kick` and `ban` warning actions use the first two. AutoMod escalation also needs Manage Server, because Discord only delivers AutoMod executions to bots that have it. |
+| `moderation` | Kick Members for `/kick`, Ban Members for `/ban`, Moderate Members for `/timeout`, `/untimeout`, and the `timeout` warning action, and Manage Messages with Read Message History for `/purge`. Embed Links lets the right-click Report to moderators post its embed. The `kick` and `ban` warning actions use the first two. AutoMod escalation also needs Manage Server, because Discord only delivers AutoMod executions to bots that have it. |
 | `events` | Manage Roles, for giving new members the auto-role. |
+
+Discord's role settings call Moderate Members **Timeout Members**.
 
 ## Setup
 
