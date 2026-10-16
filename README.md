@@ -8,7 +8,7 @@ This is a Discord bot that generates speech in Morshu's voice by calling the api
 |---|---|
 | `/generate <format> <text>` | Generates audio or video from the given text and sends it as a file attachment. `format` choices are `WAV audio` and `MP4 video`. `text` holds up to 500 characters. The text shows above the file exactly as typed, so moderators and moderation bots can see what was generated. It never pings anyone. A result over the server's upload limit is not sent. |
 | `/morshu <text>` | Joins your current voice channel and plays the generated audio. `text` holds up to 500 characters. The text also shows in the chat exactly as typed, without pinging anyone, so moderators can see what was spoken. The bot leaves on its own when it is alone or after 10 minutes of silence. |
-| `/help` | Shows a short guide to Morshu and the commands you can use, with links to the privacy policy and terms, in an embed that only you see. |
+| `/help` | Shows a short guide to Morshu and the commands you can use, with links to the privacy policy and terms, in an embed that only you see. A message that only mentions Morshu gets a short reply with a button that opens the same guide, and the reply deletes itself after a minute. |
 | `/about` | Shows the bot's version, how long it has been online, its response time, and a link to its source code, in a reply that only you see. |
 
 These are the commands of the default cogs, `help` and `morshu`.
@@ -54,6 +54,7 @@ Then enable **Server Members Intent** under **Privileged Gateway Intents** on yo
 A verified bot needs Discord's approval for every privileged intent it asks for.
 
 The **Presence Intent** and the **Message Content Intent** are not needed and should stay disabled.
+Discord gives a bot the text of a message that mentions it without the Message Content Intent, which is all that the reply to a mention needs.
 The bot also requests the Auto Moderation Execution intent, which is not privileged and needs no portal setting.
 
 ## Bot permissions
@@ -70,6 +71,7 @@ The default cogs, `help` and `morshu`, need these permissions.
 | Attach Files | Sending the files that `/generate` creates. |
 | Connect | Joining a voice channel for `/morshu`. |
 | Speak | Playing the generated audio for `/morshu`. |
+| Read Message History | Optional. Replying to a message that only mentions Morshu. Without it, Morshu answers in the channel instead. |
 
 The `voice` cog needs no further permissions.
 The other optional cogs add these permissions.

@@ -4,7 +4,7 @@ This policy explains what the Discord bot Morshu does with information about you
 It applies to the public Morshu that Axel Lindberg runs, which you can add to a Discord server.
 Someone who runs their own copy of this source code is responsible for their own copy.
 
-Effective date: 12 October 2026.
+Effective date: 16 October 2026.
 
 ## Who is responsible
 
@@ -23,6 +23,10 @@ You can reach Axel Lindberg at [esa.kempli@gmail.com](mailto:esa.kempli@gmail.co
 To work, Morshu receives what Discord gives every bot in a server, such as the server's channels and roles, member names and IDs, and who is in which voice channel.
 Morshu uses this only to answer commands, for example to join the voice channel you are in.
 It does not save any of it.
+
+Discord also gives Morshu the text of a message that mentions Morshu.
+Morshu only checks whether the message is nothing but the mention, and then answers with a button that opens its guide.
+It does not save the text, does not write it to a log, and reads no other messages.
 
 ## What Morshu stores
 
