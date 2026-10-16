@@ -18,7 +18,7 @@ Each member can run them twice within 20 seconds, because speech takes the most 
 Adding `voice` to `COGS_TO_LOAD` adds `/voice join`, `/voice leave`, and `/voice stop`, which stops a speech that plays.
 Adding `admin` and `moderation` enables the template's moderation commands, including AutoMod management under `/admin automod`.
 With `admin` loaded, `/admin channel` can restrict `/generate`, `/morshu`, and the voice and media commands to one bot channel.
-Adding `events` gives new members the role set with `/admin autorole` and posts a welcome message in the bot channel, so load it together with `admin`.
+Adding `events` gives new members the role set with `/admin autorole` and posts a welcome message in the bot channel, and with `/admin goodbye` a goodbye when a member leaves, so load it together with `admin`.
 See the [template README](https://github.com/Lempki/discord-bot-template#moderation-and-automod).
 
 ## Prerequisites
@@ -49,7 +49,7 @@ See the [template README](https://github.com/Lempki/discord-bot-template#moderat
 ## Privileged intents
 
 With its default cogs, `help` and `morshu`, the bot needs no privileged intent, so leave all of them disabled.
-Adding `events` to `COGS_TO_LOAD` makes the bot ask for Server Members, for the auto-role and the welcome message on member join.
+Adding `events` to `COGS_TO_LOAD` makes the bot ask for Server Members, for the auto-role and the welcome message on member join, and the goodbye when a member leaves.
 Then enable **Server Members Intent** under **Privileged Gateway Intents** on your application's **Bot** page in the [Discord Developer Portal](https://discord.com/developers/applications) before starting the bot, or Discord refuses the connection.
 A verified bot needs Discord's approval for every privileged intent it asks for.
 
@@ -270,7 +270,7 @@ discord-bot-morshu/
 │   ├── info.py          # /info server, member, and avatar.
 │   ├── admin.py         # /admin command group, including /admin automod.
 │   ├── moderation.py    # /warn, /warnings, /timeout, /untimeout, /kick, /ban, /purge, the right-click Warn and Report, and AutoMod escalation.
-│   ├── events.py        # Auto-role and welcome message on member join.
+│   ├── events.py        # The auto-role and welcome message on join, and the goodbye message on leave.
 │   └── template.py      # Reference cog inherited from discord-bot-template. Not loaded by default.
 ├── utils/
 │   ├── audio.py         # MediaAPIClient, URL helpers, and audio sources for files, bytes, and streams.
