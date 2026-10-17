@@ -239,6 +239,11 @@ Add `--profile media` to also run api-media, cloned next to this repository the 
 The stack builds each service from its sibling folder and connects them on a private network.
 It also names each service's published image, which a downloaded release runs instead of building it.
 It passes `API_MORSHU_SECRET`, and `API_MEDIA_SECRET` when the media profile is used, from this repository's `.env` to the matching service, so the bot and each service always agree.
+
+With the media profile, api-media reads its own settings, such as `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `SPONSORBLOCK`, and `YDL_COOKIES_FILE`, from an optional `api-media.env` next to the stack file.
+A Git clone can keep them in `../api-media/.env` instead, and `api-media.env` wins where both set the same setting.
+Neither file is needed unless you change one of api-media's defaults, and api-media's README lists every setting.
+For a YouTube cookies file, put it in a `cookies` folder next to the stack file, set `MEDIA_COOKIES_DIR=./cookies` in `.env`, and set `YDL_COOKIES_FILE=cookies/youtube.txt` in `api-media.env`.
 The bot keeps its database on the same `bot-data` volume as above.
 
 Docker keeps at most two log files of 5 MB per container and overwrites the oldest.
