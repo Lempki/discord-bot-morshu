@@ -1,8 +1,9 @@
 """Morshu speech through api-morshu, sent as a file or spoken in a voice channel."""
 
+import contextlib
 import io
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import aiohttp
 import discord
@@ -30,9 +31,12 @@ def _megabytes(size: int) -> float:
 # Discord sometimes closes the connection after it stored an upload, before it answers.
 _UPLOAD_ATTEMPTS = 3
 
-# Speech takes the most CPU of anything the bots do.
-# So one member may generate this many times within the period.
+# Speech takes the most CPU of anything this bot does.
+# So one member may run each speech command this many times within the period.
 GENERATE_RATE, GENERATE_PER_SECONDS = 2, 20.0
+
+# api-morshu lets FFmpeg encode a video for up to 120 seconds, so the bot waits a little longer.
+SYNTHESIS_TIMEOUT_SECONDS = 130.0
 
 
 def _caption(text: str) -> str:
@@ -62,6 +66,36 @@ async def _reply_with_caption(interaction: discord.Interaction, caption: str) ->
         return
     # The caption is the reply, so finish() must never delete it.
     mark_replied(interaction)
+
+
+async def _show_failure(
+    interaction: discord.Interaction, progress: bool, template: str, **values: Any
+) -> None:
+    """Tells the member that a generation failed, in place of the "generating" message.
+
+    Args:
+        interaction: The deferred interaction.
+        progress: Whether the "generating" message was posted, which the failure then replaces.
+        template: The failure message. An empty one, as under LOCALE=silent, sends nothing.
+        **values: The placeholder values.
+    """
+    if not progress:
+        await respond(interaction, template, **values)
+        await finish(interaction)
+        return
+    message = template.format(**values) if template else ""
+    with contextlib.suppress(discord.HTTPException):
+        if message:
+            await interaction.edit_original_response(content=message)
+        else:
+            await interaction.delete_original_response()
+
+
+async def _remove_progress(interaction: discord.Interaction, progress: bool) -> None:
+    """Deletes the "generating" message before a failure that only the member sees."""
+    if progress:
+        with contextlib.suppress(discord.HTTPException):
+            await interaction.delete_original_response()
 
 
 async def _reply_has_file(interaction: discord.Interaction, filename: str) -> bool:
@@ -117,7 +151,7 @@ class MorshuCog(commands.Cog, name="Morshu"):
         self._http = httpx.AsyncClient(
             base_url=service.url,
             headers={"Authorization": f"Bearer {service.secret}"},
-            timeout=60.0,
+            timeout=SYNTHESIS_TIMEOUT_SECONDS,
         )
 
     async def cog_unload(self) -> None:
@@ -169,7 +203,7 @@ class MorshuCog(commands.Cog, name="Morshu"):
         await interaction.response.defer()
         s = self.bot.strings_for(interaction)
         guild = guild_of(interaction)
-        await respond(interaction, s.morshu_generating)
+        progress = await respond(interaction, s.morshu_generating)
 
         try:
             data = await self._synthesize(text, output.value)
@@ -177,19 +211,18 @@ class MorshuCog(commands.Cog, name="Morshu"):
             log.warning(f"Synthesis failed: {error}")
             data = b""
         if not data:
-            await respond(interaction, s.morshu_empty)
-            await finish(interaction)
+            await _show_failure(interaction, progress, s.morshu_empty)
             return
 
         limit = guild.filesize_limit
         if len(data) > limit:
-            await respond(
+            await _show_failure(
                 interaction,
+                progress,
                 s.morshu_too_large,
                 size=_megabytes(len(data)),
                 limit=_megabytes(limit),
             )
-            await finish(interaction)
             return
 
         filename = "morshu.mp4" if output.value == "video" else "morshu.wav"
@@ -204,6 +237,7 @@ class MorshuCog(commands.Cog, name="Morshu"):
         log.warning(
             f"The {output.value} file of {len(text)} characters did not reach Discord."
         )
+        await _remove_progress(interaction, progress)
         private = self.bot.strings_for(interaction, private=True)
         await respond(interaction, private.morshu_send_failed, ephemeral=True)
         await finish(interaction)
@@ -230,7 +264,7 @@ class MorshuCog(commands.Cog, name="Morshu"):
             await finish(interaction)
             return
         channel = member.voice.channel
-        await respond(interaction, s.morshu_generating)
+        progress = await respond(interaction, s.morshu_generating)
 
         try:
             data = await self._synthesize(text, "wav")
@@ -238,8 +272,7 @@ class MorshuCog(commands.Cog, name="Morshu"):
             log.warning(f"Synthesis failed: {error}")
             data = b""
         if not data:
-            await respond(interaction, s.morshu_empty)
-            await finish(interaction)
+            await _show_failure(interaction, progress, s.morshu_empty)
             return
 
         vc = await self.bot.voice_presence.connect(channel)

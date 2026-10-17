@@ -1,4 +1,4 @@
-"""Tests for how /generate delivers its file when Discord drops the connection."""
+"""Tests for /generate and /morshu: delivering the file, the caption, and failures."""
 
 from unittest.mock import AsyncMock, MagicMock
 
@@ -6,7 +6,10 @@ import aiohttp
 import discord
 import pytest
 
-from cogs.morshu import _caption, _reply_with_caption, _reply_with_file
+from bot import BotApp
+from cogs.morshu import MorshuCog, _caption, _reply_with_caption, _reply_with_file
+from config import Config, ServiceConfig
+from localization import LOCALES
 from tests.conftest import make_interaction
 from utils.replies import finish
 
@@ -113,3 +116,76 @@ async def test_failed_voice_caption_does_not_stop_the_command() -> None:
 
     # Without a caption, nothing replied, so the "is thinking..." message is cleaned up.
     interaction.delete_original_response.assert_awaited_once()
+
+
+EN = LOCALES["en"]
+
+
+def morshu_cog(data: bytes) -> MorshuCog:
+    """The cog in an English bot, with a fake api-morshu that answers data."""
+    services = {"morshu": ServiceConfig("http://morshu:8000", "s" * 16)}
+    bot = BotApp(Config(discord_token="t", locale="en", services=services))
+    cog = MorshuCog(bot)
+    cog._synthesize = AsyncMock(return_value=data)  # type: ignore[method-assign]
+    return cog
+
+
+def command_interaction(*, filesize_limit: int = 10_000_000) -> MagicMock:
+    interaction = make_interaction()
+    interaction.guild.filesize_limit = filesize_limit
+    interaction.edit_original_response = AsyncMock()
+    return interaction
+
+
+@pytest.mark.parametrize("output", ["wav", "video"])
+async def test_a_failed_generation_replaces_the_generating_message(output: str) -> None:
+    cog = morshu_cog(b"")
+    interaction = command_interaction()
+    choice = discord.app_commands.Choice(name=output, value=output)
+
+    await cog.generate.callback(cog, interaction, choice, "Lamp oil")  # type: ignore[arg-type]
+
+    # The generating message became the failure, so no stale message stays in the channel.
+    interaction.followup.send.assert_awaited_once_with(
+        EN.morshu_generating, ephemeral=False
+    )
+    interaction.edit_original_response.assert_awaited_once_with(content=EN.morshu_empty)
+
+
+async def test_a_file_too_large_replaces_the_generating_message() -> None:
+    cog = morshu_cog(b"x" * 2048)
+    interaction = command_interaction(filesize_limit=1024)
+    choice = discord.app_commands.Choice(name="wav", value="wav")
+
+    await cog.generate.callback(cog, interaction, choice, "Lamp oil")  # type: ignore[arg-type]
+
+    content = interaction.edit_original_response.await_args.kwargs["content"]
+    assert content == EN.morshu_too_large.format(size=0.0, limit=0.0)
+
+
+async def test_a_failed_voice_generation_replaces_the_generating_message() -> None:
+    cog = morshu_cog(b"")
+    member = MagicMock(spec=discord.Member)
+    member.voice = MagicMock(channel=MagicMock(spec=discord.VoiceChannel))
+    interaction = command_interaction()
+    interaction.user = member
+
+    await cog.morshu.callback(cog, interaction, "Lamp oil")  # type: ignore[arg-type]
+
+    interaction.edit_original_response.assert_awaited_once_with(content=EN.morshu_empty)
+
+
+async def test_a_file_that_never_arrives_leaves_no_generating_message(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("cogs.morshu._reply_with_file", AsyncMock(return_value=False))
+    cog = morshu_cog(b"RIFF")
+    interaction = command_interaction()
+    choice = discord.app_commands.Choice(name="wav", value="wav")
+
+    await cog.generate.callback(cog, interaction, choice, "Lamp oil")  # type: ignore[arg-type]
+
+    interaction.delete_original_response.assert_awaited_once()
+    last = interaction.followup.send.await_args
+    assert last.args == (EN.morshu_send_failed,)
+    assert last.kwargs["ephemeral"] is True
