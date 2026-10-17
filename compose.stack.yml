@@ -58,6 +58,10 @@ services:
       timeout: 5s
       # Its startup loads a model, which takes longer than the other services.
       retries: 12
+    # A video's speech passes through temporary files, and /tmp in memory keeps them off the disk.
+    # They vanish with the container, even when it is killed in the middle of a video.
+    tmpfs:
+      - /tmp
     restart: unless-stopped
     logging: *logging
     mem_limit: 1g

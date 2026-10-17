@@ -55,6 +55,7 @@ A verified bot needs Discord's approval for every privileged intent it asks for.
 
 The **Presence Intent** and the **Message Content Intent** are not needed and should stay disabled.
 Discord gives a bot the text of a message that mentions it without the Message Content Intent, which is all that the reply to a mention needs.
+The bot turns off the direct messages intent, so Discord never sends it the text of a direct message. Slash commands and buttons still work in direct messages, because they are interactions.
 The bot also requests the Auto Moderation Execution intent, which is not privileged and needs no portal setting.
 
 ## Bot permissions

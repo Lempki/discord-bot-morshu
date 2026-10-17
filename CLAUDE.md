@@ -54,4 +54,5 @@ Both services are private repositories, and their Docker images are private pack
 
 * `PRIVACY.md` and `TERMS.md` are the public bot's privacy policy and terms, which the Discord Developer Portal links to.
 * Never write the texts that members make Morshu say to a log or to the database, because the privacy policy promises that Morshu keeps none. Log a text's length instead.
+* Logs name servers only, by name and ID. The privacy policy promises that they hold no member names and no channel names.
 * A change to what the bot stores, logs, or sends elsewhere must update `PRIVACY.md` and its effective date in the same change.

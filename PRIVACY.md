@@ -4,7 +4,7 @@ This policy explains what the Discord bot Morshu does with information about you
 It applies to the public Morshu that Axel Lindberg runs, which you can add to a Discord server.
 Someone who runs their own copy of this source code is responsible for their own copy.
 
-Effective date: 16 October 2026.
+Effective date: 17 October 2026.
 
 ## Who is responsible
 
@@ -15,8 +15,9 @@ You can reach Axel Lindberg at [esa.kempli@gmail.com](mailto:esa.kempli@gmail.co
 
 * `/generate` and `/morshu` take a text of up to 500 characters and turn it into speech in Morshu's voice.
 * The text goes to api-morshu, the speech service that runs on the same computer as the bot. It is not sent to any other service.
-* Neither the bot nor api-morshu saves the text, and neither writes it to a log. The audio exists only until Discord has received it.
-* Morshu posts the text in the channel together with the audio, so that moderators can see what was generated. Discord stores that message like any other message in the channel, and the server's moderators can delete it.
+* Neither the bot nor api-morshu saves the text, and neither writes it to a log.
+* The audio and the video exist only in memory, until Discord has received the file from `/generate`, or until `/morshu` has finished playing in your voice channel. While api-morshu makes a video, the audio passes through a temporary file that is also kept in memory, never reaches the disk, and is deleted as soon as the video is made.
+* Morshu posts the text in the channel, so that moderators can see what was generated: together with the file for `/generate`, and as its own message for `/morshu`. Discord stores that message like any other message in the channel, and the server's moderators can delete it.
 
 ## What Morshu receives from Discord
 
@@ -27,11 +28,12 @@ It does not save any of it.
 Discord also gives Morshu the text of a message that mentions Morshu.
 Morshu only checks whether the message is nothing but the mention, and then answers with a button that opens its guide.
 It does not save the text, does not write it to a log, and reads no other messages.
+Morshu does not ask Discord for direct messages, so the text of a direct message never reaches it.
 
 ## What Morshu stores
 
 * **A database.** The public Morshu stores no information about members. The database exists for optional moderation features, such as warnings, which the public Morshu does not offer.
-* **Technical logs.** The computer that runs Morshu keeps logs of what the bot does, such as which server a command came from, which command ran, and any errors. The logs contain server names and IDs, but no message texts and no member names. Each part of the bot keeps at most two log files of 5 MB, the oldest is overwritten as new lines come in, and the logs are deleted whenever the bot is updated.
+* **Technical logs.** The computer that runs Morshu keeps logs of what the bot does, such as which server a command came from, which command ran, and any errors. The logs contain server names and IDs, but no message texts, no member names, and no channel names. Each part of the bot keeps at most two log files of 5 MB, and the oldest lines are overwritten as new ones come in. A part's logs are also deleted when an update replaces that part.
 
 ## Why this is allowed
 

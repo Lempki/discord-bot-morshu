@@ -248,7 +248,7 @@ class MorshuCog(commands.Cog, name="Morshu"):
         await _reply_with_caption(interaction, _caption(text))
         # Playback lasts longer than the interaction should stay open, so the command ends first.
         await finish(interaction)
-        log.info(f"Speaking {len(text)} characters in {channel.name} of {guild}.")
+        log.info(f"Speaking {len(text)} characters in {guild}.")
         try:
             await self.bot.voice_presence.play(
                 vc, bytes_source(data, self.bot.config.ffmpeg_path)
