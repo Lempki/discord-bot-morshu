@@ -53,7 +53,7 @@ services:
       # One secret, read from this repository's .env, so the bot and the service always agree.
       API_SECRET: ${API_MORSHU_SECRET:?Set API_MORSHU_SECRET in .env}
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=4)"]
       interval: 10s
       timeout: 5s
       # Its startup loads a model, which takes longer than the other services.
@@ -86,7 +86,7 @@ services:
       # MEDIA_COOKIES_DIR in .env picks the folder, such as ./cookies in a downloaded release.
       - ${MEDIA_COOKIES_DIR:-../api-media/cookies}:/app/cookies:ro
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=4)"]
       interval: 10s
       timeout: 5s
       retries: 6

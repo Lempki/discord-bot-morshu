@@ -7,7 +7,7 @@ This is a Discord bot that generates speech in Morshu's voice by calling the api
 | Command | Description |
 |---|---|
 | `/generate <format> <text>` | Generates audio or video from the given text and sends it as a file attachment. `format` choices are `WAV audio` and `MP4 video`. `text` holds up to 500 characters. The text shows above the file exactly as typed, so moderators and moderation bots can see what was generated. It never pings anyone. A result over the server's upload limit is not sent. |
-| `/morshu <text>` | Joins your current voice channel and plays the generated audio. `text` holds up to 500 characters. The text also shows in the chat exactly as typed, without pinging anyone, so moderators can see what was spoken. The bot leaves on its own when it is alone or after 10 minutes of silence. |
+| `/morshu <text>` | Joins your current voice channel and plays the generated audio. `text` holds up to 500 characters. The text also shows in the chat exactly as typed, without pinging anyone, so moderators can see what was spoken. The bot leaves on its own when it is alone or after 10 minutes of silence. While it plays in another voice channel, it answers that it is busy instead of moving. |
 | `/help` | Shows a short guide to Morshu and the commands you can use, with links to the privacy policy and terms, in an embed that only you see. A message that only mentions Morshu gets a short reply with a button that opens the same guide, and the reply deletes itself after a minute. |
 | `/about` | Shows the bot's version, how long it has been online, its response time, and a link to its source code, in a reply that only you see. |
 
@@ -44,7 +44,6 @@ See the [template README](https://github.com/Lempki/discord-bot-template#moderat
     ```
     sudo apt install ffmpeg
     ```
-
 
 ## Privileged intents
 
@@ -244,7 +243,7 @@ With the media profile, api-media reads its own settings, such as `SPOTIFY_CLIEN
 A Git clone can keep them in `../api-media/.env` instead, and `api-media.env` wins where both set the same setting.
 Neither file is needed unless you change one of api-media's defaults, and api-media's README lists every setting.
 For a YouTube cookies file, put it in a `cookies` folder next to the stack file, set `MEDIA_COOKIES_DIR=./cookies` in `.env`, and set `YDL_COOKIES_FILE=cookies/youtube.txt` in `api-media.env`.
-The bot keeps its database on the same `bot-data` volume as above.
+The stack's fixed project name keeps the database on its own `bot-data` volume, whatever this folder is called.
 
 Docker keeps at most two log files of 5 MB per container and overwrites the oldest.
 The bot's container may use at most 512 MB of memory, and each api-* service in the stack 1 GB.
@@ -292,10 +291,6 @@ discord-bot-morshu/
 │   ├── replies.py       # respond() and finish(), which never leave a command "thinking".
 │   ├── strings.py       # Every core message and command translation, in English and Finnish.
 │   └── voice.py         # Joins, plays in, and leaves voice channels for every cog.
-├── assets/
-│   ├── audio/           # .ogg, .mp3, and .wav files.
-│   ├── images/          # .png, .jpg, .gif, and .webp files.
-│   └── videos/          # .mp4, .mov, and .webm files.
 ├── tests/               # Pytest suite. Runs in CI on pushes to main and on pull requests.
 ├── .env.template        # Template for environment variables.
 ├── pyproject.toml       # Project metadata and dependencies.
@@ -345,11 +340,11 @@ The tests list every message or command text a language is missing, and they fai
 ## Related services
 
 The following services work alongside this bot and handle functionality that is managed centrally rather than bundled in each bot repository.
-They are private, so the bot runs only together with its owner's copy of api-morshu.
+They are private, so a copy of this bot cannot run without access to api-morshu.
 
 | Service | Description |
 |---|---|
-| api-morshu | Hosts the Morshu TTS engine. Accepts text and returns a synthesised WAV or video file. The source audio and sprite assets live here. |
+| api-morshu | Hosts the Morshu TTS engine. Accepts text and returns a synthesized WAV or video file. The source audio and sprite assets live here. |
 | api-media | Resolves YouTube, SoundCloud, and Spotify track metadata, and streams their audio for playback. Bots call this instead of bundling yt-dlp directly. |
 
 ## Privacy and terms

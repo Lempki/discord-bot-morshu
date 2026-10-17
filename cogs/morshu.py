@@ -264,6 +264,16 @@ class MorshuCog(commands.Cog, name="Morshu"):
             await finish(interaction)
             return
         channel = member.voice.channel
+        current = guild.voice_client
+        if (
+            isinstance(current, discord.VoiceClient)
+            and current.channel != channel
+            and (current.is_playing() or current.is_paused())
+        ):
+            # Moving away would cut off what plays there, such as music from the media cog.
+            await respond(interaction, s.morshu_busy)
+            await finish(interaction)
+            return
         progress = await respond(interaction, s.morshu_generating)
 
         try:
@@ -286,8 +296,9 @@ class MorshuCog(commands.Cog, name="Morshu"):
             await self.bot.voice_presence.play(
                 vc, bytes_source(data, self.bot.config.ffmpeg_path)
             )
-        except Exception as error:
-            log.warning(f"Playback in {guild} failed: {error}")
+        except (discord.ClientException, OSError):
+            # The traceback names no text, so the privacy policy still holds.
+            log.exception(f"Playback in {guild} failed.")
 
     async def cog_load(self) -> None:
         """Logs that the cog is ready."""

@@ -200,3 +200,20 @@ async def test_a_file_that_never_arrives_leaves_no_generating_message(
 def test_sizes_use_the_languages_decimal_point() -> None:
     assert _megabytes(8_650_000, LOCALES["en"].decimal_point) == "8.2"
     assert _megabytes(8_650_000, LOCALES["fi"].decimal_point) == "8,2"
+
+
+async def test_morshu_does_not_leave_a_channel_where_something_plays() -> None:
+    cog = morshu_cog(b"RIFF")
+    member = MagicMock(spec=discord.Member)
+    member.voice = MagicMock(channel=MagicMock(spec=discord.VoiceChannel))
+    interaction = command_interaction()
+    interaction.user = member
+    elsewhere = MagicMock(spec=discord.VoiceClient)
+    elsewhere.channel = MagicMock(spec=discord.VoiceChannel)
+    elsewhere.is_playing.return_value = True
+    interaction.guild.voice_client = elsewhere
+
+    await cog.morshu.callback(cog, interaction, "Lamp oil")  # type: ignore[arg-type]
+
+    interaction.followup.send.assert_awaited_once_with(EN.morshu_busy, ephemeral=False)
+    cog._synthesize.assert_not_awaited()  # type: ignore[attr-defined]

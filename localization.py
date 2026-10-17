@@ -26,6 +26,7 @@ class Strings(CoreStrings):
     # Morshu. The placeholders of morshu_too_large are {size} and {limit} in megabytes.
     morshu_generating: str = ""
     morshu_empty: str = ""
+    morshu_busy: str = ""
     morshu_too_large: str = ""
     # The decimal separator of a size in morshu_too_large, such as the comma in Finnish.
     decimal_point: str = ""
@@ -39,6 +40,7 @@ BOT_TEXT: dict[str, dict[str, str]] = {
     "en": {
         "morshu_generating": "Generating...",
         "morshu_empty": "Could not generate speech for that text.",
+        "morshu_busy": "Morshu is busy in another voice channel. Try again in a moment.",
         "morshu_too_large": "The result is {size} MB, which is over this server's {limit} MB upload limit.",
         "decimal_point": ".",
         "morshu_send_failed": "The file did not reach Discord. Try again.",
@@ -51,6 +53,7 @@ BOT_TEXT: dict[str, dict[str, str]] = {
     "fi": {
         "morshu_generating": "Luodaan...",
         "morshu_empty": "Tekstistä ei voitu luoda puhetta.",
+        "morshu_busy": "Morshu on kiireinen toisella äänikanavalla. Yritä hetken päästä uudelleen.",
         "morshu_too_large": "Tulos on {size} Mt, mikä ylittää tämän palvelimen {limit} Mt:n tiedostokokorajan.",
         "decimal_point": ",",
         "morshu_send_failed": "Tiedosto ei päässyt Discordiin. Yritä uudelleen.",

@@ -36,7 +36,7 @@ Both services are private repositories, and their Docker images are private pack
 ## Messages and languages
 
 * A reply to a command never names the member who ran it, because Discord shows that above the reply.
-  Name a member only in a message that is not a reply, such as the player's now-playing line, and never ping for it.
+  Name a member only in a message that is not a reply, such as the music panel, and never ping for it.
 * Never hard-code user-facing text in a cog. Add a field to `Strings` in `localization.py`, give it text in every language, and send it with `respond()`.
 * Pick the language with `self.bot.strings_for(interaction)`. Pass `private=True` for ephemeral admin and moderator replies, which stay on even when `LOCALE=silent`.
 * A command that starts work, such as a download or a generation, gets a per-member `app_commands.checks.cooldown`.
