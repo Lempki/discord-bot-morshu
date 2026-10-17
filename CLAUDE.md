@@ -29,7 +29,7 @@ Both services are private repositories, and their Docker images are private pack
 ## Template rules
 
 * discord-bot-template's `.template-manifest.toml` lists the core files that this bot keeps identical to it.
-* Those files are changed in the template first, then carried over here with `dev-standards template-check --apply`.
+* Those files are changed in the template first, then carried over here with `dev-standards template-check --template ../discord-bot-template --apply`.
 * Bot-specific behavior belongs in files outside the manifest, such as `localization.py`, `compose.stack.yml`, and `cogs/morshu.py`.
 * `config.py` is generic. This bot reads api-morshu with `bot.config.service("morshu")`, which maps to `API_MORSHU_URL` and `API_MORSHU_SECRET`.
 

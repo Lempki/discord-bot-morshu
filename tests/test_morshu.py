@@ -7,7 +7,13 @@ import discord
 import pytest
 
 from bot import BotApp
-from cogs.morshu import MorshuCog, _caption, _reply_with_caption, _reply_with_file
+from cogs.morshu import (
+    MorshuCog,
+    _caption,
+    _megabytes,
+    _reply_with_caption,
+    _reply_with_file,
+)
 from config import Config, ServiceConfig
 from localization import LOCALES
 from tests.conftest import make_interaction
@@ -160,7 +166,7 @@ async def test_a_file_too_large_replaces_the_generating_message() -> None:
     await cog.generate.callback(cog, interaction, choice, "Lamp oil")  # type: ignore[arg-type]
 
     content = interaction.edit_original_response.await_args.kwargs["content"]
-    assert content == EN.morshu_too_large.format(size=0.0, limit=0.0)
+    assert content == EN.morshu_too_large.format(size="0.0", limit="0.0")
 
 
 async def test_a_failed_voice_generation_replaces_the_generating_message() -> None:
@@ -189,3 +195,8 @@ async def test_a_file_that_never_arrives_leaves_no_generating_message(
     last = interaction.followup.send.await_args
     assert last.args == (EN.morshu_send_failed,)
     assert last.kwargs["ephemeral"] is True
+
+
+def test_sizes_use_the_languages_decimal_point() -> None:
+    assert _megabytes(8_650_000, LOCALES["en"].decimal_point) == "8.2"
+    assert _megabytes(8_650_000, LOCALES["fi"].decimal_point) == "8,2"

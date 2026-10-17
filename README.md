@@ -13,7 +13,7 @@ This is a Discord bot that generates speech in Morshu's voice by calling the api
 
 These are the commands of the default cogs, `help` and `morshu`.
 `/generate` and `/morshu` work only in servers.
-Each member can run them twice within 20 seconds, because speech takes the most CPU of anything the bot does.
+Each member can run each of them twice within 20 seconds, because speech takes the most CPU of anything the bot does.
 
 Adding `voice` to `COGS_TO_LOAD` adds `/voice join`, `/voice leave`, and `/voice stop`, which stops a speech that plays.
 Adding `admin` and `moderation` enables the template's moderation commands, including AutoMod management under `/admin automod`.
@@ -68,7 +68,7 @@ The default cogs, `help` and `morshu`, need these permissions.
 | Permission | Required for |
 |---|---|
 | View Channels | Reading channel state. |
-| Send Messages | Responding to commands. |
+| Send Messages | Answering a message that only mentions Morshu. Command replies need no permission. |
 | Attach Files | Sending the files that `/generate` creates. |
 | Connect | Joining a voice channel for `/morshu`. |
 | Speak | Playing the generated audio for `/morshu`. |
@@ -82,7 +82,7 @@ The other optional cogs add these permissions.
 | `media` | Embed Links, for the now-playing panel. Set Voice Channel Status is optional, for showing the playing song under the voice channel's name. |
 | `admin` | Manage Server, for managing the bot's AutoMod rules with `/admin automod`. |
 | `moderation` | Kick Members for `/kick`, Ban Members for `/ban`, Moderate Members for `/timeout`, `/untimeout`, and the `timeout` warning action, and Manage Messages with Read Message History for `/purge`. Embed Links lets the right-click Report to moderators post its embed. The `kick` and `ban` warning actions use the first two. AutoMod escalation also needs Manage Server, because Discord only delivers AutoMod executions to bots that have it. |
-| `events` | Manage Roles, for giving new members the auto-role. |
+| `events` | Manage Roles, for giving new members the auto-role. Ban Members is optional, and tells a ban from a leave, so a banned member gets no goodbye. |
 
 Discord's role settings call Moderate Members **Timeout Members**.
 
@@ -235,7 +235,7 @@ To also run api-morshu, clone it next to this repository and use the stack file 
 docker compose -f compose.stack.yml up -d --build
 ```
 
-Add `--profile media` to also run api-media, cloned next to this repository the same way.
+Add `--profile media` to also run api-media, cloned next to this repository the same way. Set `API_MEDIA_SECRET` in `.env` first, because api-media refuses to start without a secret of at least 16 characters.
 The stack builds each service from its sibling folder and connects them on a private network.
 It also names each service's published image, which a downloaded release runs instead of building it.
 It passes `API_MORSHU_SECRET`, and `API_MEDIA_SECRET` when the media profile is used, from this repository's `.env` to the matching service, so the bot and each service always agree.
@@ -256,8 +256,8 @@ The base configuration variables are documented in the [discord-bot-template](ht
 
 | Variable | Default | Description |
 |---|---|---|
-| `COGS_TO_LOAD` | `help` | Cogs to load at startup. `.env.template` sets `help,morshu`, which is this bot's default set. Use `help,voice,morshu` to add voice channel commands, or `help,voice,media,morshu,admin,moderation,events` for the full feature set. The `media` cog also needs `API_MEDIA_URL` and `API_MEDIA_SECRET`. |
-| `LOCALE` | `silent` | The fallback language for users whose Discord language the bot does not speak. Built-in values are `en` and `fi`. `silent` mutes public replies, such as generation progress and error notifications, while admin and moderator replies are still sent because only the person who ran the command sees them. |
+| `COGS_TO_LOAD` | `help` | Cogs to load at startup. `.env.template` sets `help,morshu`, which is this bot's default set. Use `help,voice,morshu` to add voice channel commands, or `help,voice,media,info,morshu,admin,moderation,events` for the full feature set. The `media` cog also needs `API_MEDIA_URL` and `API_MEDIA_SECRET`. |
+| `LOCALE` | `silent` | The fallback language for users whose Discord language the bot does not speak. Built-in values are `en` and `fi`. `silent` mutes public replies to commands, such as generation progress and public error notices. Private replies, such as `/help`, admin and moderator replies, and private error messages, are still sent because only the person who ran the command sees them. |
 | `API_MORSHU_URL` | Not set | Base URL of the api-morshu service. `.env.template` sets `http://localhost:8002`. Required when the `morshu` cog is loaded, and the bot stops at startup without it. `compose.stack.yml` overrides this inside the stack. |
 | `API_MORSHU_SECRET` | Not set | Bearer token for the api-morshu service. Must match `API_SECRET` in the service configuration, which requires at least 16 characters. |
 | `HEARTBEAT_URL` | Not set | The ping URL of a heartbeat service, such as healthchecks.io, which alerts you when the bot stops reporting that it is online. See [Offline alerts](#offline-alerts). |
@@ -320,7 +320,7 @@ Instead, discord-bot-template's `.template-manifest.toml` lists the core files t
 With both repositories cloned side by side, run this from this bot's directory to see which core files have drifted:
 
 ```bash
-uvx --from git+https://github.com/Lempki/dev-standards@v0.3.0 dev-standards template-check --template ../discord-bot-template --diff
+uvx --from git+https://github.com/Lempki/dev-standards@v0.5.0 dev-standards template-check --template ../discord-bot-template --diff
 ```
 
 Add `--apply` to copy the template's version over every drifted file, then review the result with `git diff` before committing.
@@ -338,6 +338,7 @@ Command and option names always stay English, so everyone types the same command
 The core cogs' messages and command translations live in `utils/strings.py`, in English and Finnish.
 This bot's own messages and the translations of `/generate` and `/morshu` live in `localization.py`, also in English and Finnish.
 To add a language, add its Discord locale code, such as `de` or `sv-SE`, to `BOT_TEXT` and `BOT_COMMAND_TEXT` in `localization.py`.
+The core texts exist only in English and Finnish, so a new language also needs every core message in `BOT_TEXT` and every core command text in `BOT_COMMAND_TEXT`.
 
 The tests list every message or command text a language is missing, and they fail on command texts longer than Discord's 100-character limit.
 

@@ -27,6 +27,8 @@ class Strings(CoreStrings):
     morshu_generating: str = ""
     morshu_empty: str = ""
     morshu_too_large: str = ""
+    # The decimal separator of a size in morshu_too_large, such as the comma in Finnish.
+    decimal_point: str = ""
     morshu_send_failed: str = ""
     section_morshu: str = ""
     guide_morshu: str = ""
@@ -38,6 +40,7 @@ BOT_TEXT: dict[str, dict[str, str]] = {
         "morshu_generating": "Generating...",
         "morshu_empty": "Could not generate speech for that text.",
         "morshu_too_large": "The result is {size} MB, which is over this server's {limit} MB upload limit.",
+        "decimal_point": ".",
         "morshu_send_failed": "The file did not reach Discord. Try again.",
         "section_morshu": "Morshu",
         "status_idle": "Lamp oil, rope, bombs? /help",
@@ -48,13 +51,14 @@ BOT_TEXT: dict[str, dict[str, str]] = {
     "fi": {
         "morshu_generating": "Luodaan...",
         "morshu_empty": "Tekstistä ei voitu luoda puhetta.",
-        "morshu_too_large": "Tulos on {size} Mt, mikä ylittää tämän palvelimen {limit} Mt:n latausrajan.",
+        "morshu_too_large": "Tulos on {size} Mt, mikä ylittää tämän palvelimen {limit} Mt:n tiedostokokorajan.",
+        "decimal_point": ",",
         "morshu_send_failed": "Tiedosto ei päässyt Discordiin. Yritä uudelleen.",
         "section_morshu": "Morshu",
         "status_idle": "Lamppuöljyä, köyttä, pommeja? /help",
         "mention_reply": "Haluatko sen? Se on sinun, ystäväni. Ohje aukeaa vain sinulle.",
-        "help_intro": "Morshu puhuu minkä tahansa tekstin omalla äänellään, äänikanavallasi tai tiedostona. Jokainen alla oleva osa kertoo yhdestä hänen ominaisuudestaan.",
-        "guide_morshu": "`/morshu` puhuu tekstisi äänikanavallasi, ja `/generate` lähettää sen WAV-tiedostona tai huulisynkronoituna MP4-videona. Tekstiin mahtuu 500 merkkiä, ja se näkyy keskustelussa, joten kaikki näkevät, mitä Morshu sanoi. Morshu ei säilytä tekstejäsi: [tietosuojaseloste](https://github.com/Lempki/discord-bot-morshu/blob/main/PRIVACY.md) ja [käyttöehdot](https://github.com/Lempki/discord-bot-morshu/blob/main/TERMS.md).",
+        "help_intro": "Morshu lausuu minkä tahansa tekstin omalla äänellään, äänikanavallasi tai tiedostona. Jokainen alla oleva osa kertoo yhdestä hänen ominaisuudestaan.",
+        "guide_morshu": "`/morshu` lausuu tekstisi äänikanavallasi, ja `/generate` lähettää sen WAV-tiedostona tai huulisynkronoituna MP4-videona. Tekstiin mahtuu 500 merkkiä, ja se näkyy keskustelussa, joten kaikki näkevät, mitä Morshu sanoi. Morshu ei säilytä tekstejäsi: [tietosuojaseloste](https://github.com/Lempki/discord-bot-morshu/blob/main/PRIVACY.md) ja [käyttöehdot](https://github.com/Lempki/discord-bot-morshu/blob/main/TERMS.md).",
     },
 }
 

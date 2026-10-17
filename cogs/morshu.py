@@ -23,9 +23,9 @@ log = logging.getLogger(__name__)
 _MEGABYTE = 1024 * 1024
 
 
-def _megabytes(size: int) -> float:
-    """Returns a size in bytes as megabytes, rounded to one decimal."""
-    return round(size / _MEGABYTE, 1)
+def _megabytes(size: int, decimal_point: str) -> str:
+    """Returns a size in bytes as megabytes with one decimal, in the language's notation."""
+    return f"{size / _MEGABYTE:.1f}".replace(".", decimal_point or ".")
 
 
 # Discord sometimes closes the connection after it stored an upload, before it answers.
@@ -220,8 +220,8 @@ class MorshuCog(commands.Cog, name="Morshu"):
                 interaction,
                 progress,
                 s.morshu_too_large,
-                size=_megabytes(len(data)),
-                limit=_megabytes(limit),
+                size=_megabytes(len(data), s.decimal_point),
+                limit=_megabytes(limit, s.decimal_point),
             )
             return
 
