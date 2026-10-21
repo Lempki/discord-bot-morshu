@@ -23,7 +23,7 @@ See the [template README](https://github.com/Lempki/discord-bot-template#moderat
 
 ## Prerequisites
 
-* You must have Python 3.12 installed on your system.
+* You must have Python 3.14 installed on your system.
 * You must install [uv](https://docs.astral.sh/uv/). On Windows, run `winget install --id astral-sh.uv`. On macOS or Linux, follow the uv installation guide.
 * You must install [FFmpeg](https://ffmpeg.org/) and ensure that it is available in your system PATH. You may alternatively define a custom path using the `FFMPEG_PATH` environment variable.
 
@@ -104,7 +104,7 @@ chmod +x setup.sh
 
 The script asks before it installs or starts anything, and it does the following:
 
-1. It installs [uv](https://docs.astral.sh/uv/) when uv is missing. uv also provides Python 3.12 when the machine lacks it.
+1. It installs [uv](https://docs.astral.sh/uv/) when uv is missing. uv also provides Python 3.14 when the machine lacks it.
 2. It offers to install Docker, and in a Git clone also the tools that the Docker image includes for running outside Docker, such as FFmpeg. It uses winget on Windows, Homebrew on macOS, and the system package manager on Linux. On Windows it also turns on WSL, which Docker Desktop needs, and says when Windows needs a restart or virtualization is turned off in the firmware. It shows the computer's RAM and offers to cap the memory of Docker Desktop's virtual machine, at a suggested or your own size.
 3. In a Git clone, it runs `uv sync`, which installs the locked dependencies into `.venv`.
 4. It copies `.env.template` to `.env` on the first run and asks for the bot token, which it reads without showing it. When `LOCALE` is not set, it explains that the default mutes public replies and asks for the bot's language.

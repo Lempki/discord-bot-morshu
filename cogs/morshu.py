@@ -102,7 +102,7 @@ async def _reply_has_file(interaction: discord.Interaction, filename: str) -> bo
     """Asks Discord whether the command's reply holds the file."""
     try:
         reply = await interaction.original_response()
-    except (discord.HTTPException, aiohttp.ClientError, TimeoutError):
+    except discord.HTTPException, aiohttp.ClientError, TimeoutError:
         return False
     return any(attachment.filename == filename for attachment in reply.attachments)
 
@@ -144,7 +144,7 @@ async def _reply_with_file(
 class MorshuCog(commands.Cog, name="Morshu"):
     """Morshu text-to-speech as WAV audio, lip-synced MP4 video, or live voice."""
 
-    def __init__(self, bot: "BotApp") -> None:
+    def __init__(self, bot: BotApp) -> None:
         # Raises ConfigError with the missing variable names, which stops the bot at startup.
         service = bot.config.service("morshu")
         self.bot = bot
@@ -296,7 +296,7 @@ class MorshuCog(commands.Cog, name="Morshu"):
             await self.bot.voice_presence.play(
                 vc, bytes_source(data, self.bot.config.ffmpeg_path)
             )
-        except (discord.ClientException, OSError):
+        except discord.ClientException, OSError:
             # The traceback names no text, so the privacy policy still holds.
             log.exception(f"Playback in {guild} failed.")
 
@@ -305,6 +305,6 @@ class MorshuCog(commands.Cog, name="Morshu"):
         log.info(f"{self.qualified_name} cog loaded.")
 
 
-async def setup(bot: "BotApp") -> None:
+async def setup(bot: BotApp) -> None:
     """Adds the cog. discord.py calls this when the extension loads."""
     await bot.add_cog(MorshuCog(bot))
