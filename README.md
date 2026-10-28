@@ -180,9 +180,15 @@ The bot keeps its settings and moderation warnings in a SQLite database on a Doc
 Every update copies it into the `backups` folder first, and the `backup` action does the same at any time.
 The folder keeps the last 7 copies, named after the time they were taken, such as `bot-2026-10-11-040000.db`.
 
-The `restore` action lists the copies and asks which one to put back.
+The `backups` folder sits on the same disk as the database, so a broken disk or a lost computer would take both.
+Set `BACKUP_COPY_FOLDER` in `.env` to a folder that syncs to the cloud, such as one in OneDrive or Google Drive, and each backup is copied there as well, into a subfolder named after the bot.
+That folder keeps the last 7 copies too, so several bots can share it.
+A copy that fails leaves the backup in place, and the update's Discord message names the problem.
+
+The `restore` action lists the copies in both folders and asks which one to put back.
 It backs up the current database before it replaces it, so a restore can be undone with another restore.
 To move the bot to another computer, copy the `backups` folder along with `.env` and run `restore` there.
+With `BACKUP_COPY_FOLDER` set in the copied `.env`, the new computer finds the copies in that folder, so the `backups` folder can stay behind.
 
 ### Offline alerts
 
@@ -260,6 +266,7 @@ The base configuration variables are documented in the [discord-bot-template](ht
 | `API_MORSHU_URL` | Not set | Base URL of the api-morshu service. `.env.template` sets `http://localhost:8002`. Required when the `morshu` cog is loaded, and the bot stops at startup without it. `compose.stack.yml` overrides this inside the stack. |
 | `API_MORSHU_SECRET` | Not set | Bearer token for the api-morshu service. Must match `API_SECRET` in the service configuration, which requires at least 16 characters. |
 | `HEARTBEAT_URL` | Not set | The ping URL of a heartbeat service, such as healthchecks.io, which alerts you when the bot stops reporting that it is online. See [Offline alerts](#offline-alerts). |
+| `BACKUP_COPY_FOLDER` | Not set | A folder that receives a copy of each backup, such as one that syncs to the cloud. See [Backups](#backups). |
 | `UPDATE_WEBHOOK_URL` | Not set | A Discord webhook that hears when a nightly update installs a new release or fails. It works like a password. |
 
 ## Project structure
