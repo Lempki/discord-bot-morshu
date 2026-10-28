@@ -308,7 +308,7 @@ wheels = [
 
 [[package]]
 name = "discord-bot-morshu"
-version = "3.2.2"
+version = "3.3.0"
 source = { virtual = "." }
 dependencies = [
     { name = "aiohttp" },
