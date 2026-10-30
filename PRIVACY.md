@@ -4,7 +4,7 @@ This policy explains what the Discord bot Morshu does with information about you
 It applies to the public Morshu that Axel Lindberg runs, which you can add to a Discord server.
 Someone who runs their own copy of this source code is responsible for their own copy.
 
-Effective date: 17 October 2026.
+Effective date: 30 October 2026.
 
 ## Who is responsible
 
@@ -33,7 +33,7 @@ Morshu does not ask Discord for direct messages, so the text of a direct message
 ## What Morshu stores
 
 * **A database.** The public Morshu stores no information about members. The database exists for optional moderation features, such as warnings, which the public Morshu does not offer.
-* **Technical logs.** The computer that runs Morshu keeps logs of what the bot does, such as which server a command came from, which command ran, and any errors. The logs contain server names and IDs, but no message texts, no member names, and no channel names. Each part of the bot keeps at most two log files of 5 MB, and the oldest lines are overwritten as new ones come in. A part's logs are also deleted when an update replaces that part.
+* **Technical logs.** The computer that runs Morshu keeps logs of what the bot does, such as which server a command came from, which command ran, and any errors. The logs contain server names and IDs, and the ID that Discord gives each command, which ties the bot's and api-morshu's lines about that command together. They contain no message texts, no member names, and no channel names. Each part of the bot keeps at most two log files of 5 MB, and the oldest lines are overwritten as new ones come in. A part's logs are also deleted when an update replaces that part.
 
 ## Why this is allowed
 

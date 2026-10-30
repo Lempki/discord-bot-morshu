@@ -14,6 +14,7 @@ from discord.ext import commands
 from utils.audio import bytes_source
 from utils.checks import guild_of, in_bot_channel
 from utils.replies import finish, mark_replied, respond
+from utils.request_ids import tag_request
 
 if TYPE_CHECKING:
     from bot import BotApp
@@ -152,6 +153,8 @@ class MorshuCog(commands.Cog, name="Morshu"):
             base_url=service.url,
             headers={"Authorization": f"Bearer {service.secret}"},
             timeout=SYNTHESIS_TIMEOUT_SECONDS,
+            # api-morshu logs the command's request ID, so its lines match the bot's.
+            event_hooks={"request": [tag_request]},
         )
 
     async def cog_unload(self) -> None:
