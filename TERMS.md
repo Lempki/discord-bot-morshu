@@ -1,10 +1,10 @@
 # Terms of service
 
-These terms apply when you use the public Discord bot Morshu that Axel Lindberg runs, or add it to a Discord server.
+These terms apply when you use the public Discord bot Morshu that Axel Lindberg runs, or add it to a Discord server or to your own Discord account.
 By using Morshu, you agree to them.
 The source code itself is under the [MIT License](LICENSE), and these terms do not change that license.
 
-Effective date: 12 October 2026.
+Effective date: 16 November 2026.
 
 ## What Morshu is
 

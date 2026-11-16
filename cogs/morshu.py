@@ -40,6 +40,17 @@ GENERATE_RATE, GENERATE_PER_SECONDS = 2, 20.0
 SYNTHESIS_TIMEOUT_SECONDS = 130.0
 
 
+def _place(interaction: discord.Interaction) -> str:
+    """Names where a command ran, for the log.
+
+    The privacy policy lets the logs name only servers that installed Morshu.
+    A user install can run commands in other servers, which stay unnamed.
+    """
+    if interaction.is_guild_integration() and interaction.guild is not None:
+        return str(interaction.guild)
+    return "a DM or a user install"
+
+
 def _caption(text: str) -> str:
     """Quotes the text that a generated file speaks, to show above the file.
 
@@ -180,8 +191,9 @@ class MorshuCog(commands.Cog, name="Morshu"):
         response.raise_for_status()
         return response.content
 
+    # Not guild_only, because a reply with a file works wherever Discord offers the command.
+    # That includes DMs and the servers of a user install.
     @app_commands.command(name="generate")
-    @app_commands.guild_only()
     @in_bot_channel()
     @app_commands.checks.cooldown(GENERATE_RATE, GENERATE_PER_SECONDS)
     @app_commands.rename(output="format")
@@ -205,7 +217,6 @@ class MorshuCog(commands.Cog, name="Morshu"):
         # Generating speech takes longer than the 3 seconds Discord allows for a reply.
         await interaction.response.defer()
         s = self.bot.strings_for(interaction)
-        guild = guild_of(interaction)
         progress = await respond(interaction, s.morshu_generating)
 
         try:
@@ -217,7 +228,8 @@ class MorshuCog(commands.Cog, name="Morshu"):
             await _show_failure(interaction, progress, s.morshu_empty)
             return
 
-        limit = guild.filesize_limit
+        # Discord sends the upload limit of the place the command ran in, server or not.
+        limit = interaction.filesize_limit
         if len(data) > limit:
             await _show_failure(
                 interaction,
@@ -234,7 +246,7 @@ class MorshuCog(commands.Cog, name="Morshu"):
             mark_replied(interaction)
             # The log names no text, so the privacy policy can say that Morshu keeps none.
             log.info(
-                f"Sent a {output.value} file of {len(text)} characters in {guild}."
+                f"Sent a {output.value} file of {len(text)} characters in {_place(interaction)}."
             )
             return
         log.warning(

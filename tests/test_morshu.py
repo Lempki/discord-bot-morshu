@@ -6,17 +6,18 @@ import aiohttp
 import discord
 import pytest
 
-from bot import BotApp
+from bot import BotApp, needs_a_server
 from cogs.morshu import (
     MorshuCog,
     _caption,
     _megabytes,
+    _place,
     _reply_with_caption,
     _reply_with_file,
 )
 from config import Config, ServiceConfig
 from localization import LOCALES
-from tests.conftest import make_interaction
+from tests.conftest import GUILD_ID, make_interaction
 from utils.replies import finish
 
 DISCONNECTED = aiohttp.ServerDisconnectedError("Server disconnected")
@@ -136,11 +137,47 @@ def morshu_cog(data: bytes) -> MorshuCog:
     return cog
 
 
-def command_interaction(*, filesize_limit: int = 10_000_000) -> MagicMock:
-    interaction = make_interaction()
-    interaction.guild.filesize_limit = filesize_limit
+def command_interaction(
+    *, filesize_limit: int = 10_000_000, guild_id: int | None = GUILD_ID
+) -> MagicMock:
+    interaction = make_interaction(guild_id=guild_id)
+    interaction.filesize_limit = filesize_limit
     interaction.edit_original_response = AsyncMock()
     return interaction
+
+
+def test_generate_is_offered_in_user_installs_and_morshu_is_not() -> None:
+    cog = morshu_cog(b"")
+
+    assert not needs_a_server(cog.generate)
+    assert needs_a_server(cog.morshu)
+
+
+async def test_generate_sends_the_file_outside_a_server() -> None:
+    cog = morshu_cog(b"RIFF")
+    interaction = command_interaction(guild_id=None)
+    choice = discord.app_commands.Choice(name="wav", value="wav")
+
+    await cog.generate.callback(cog, interaction, choice, "Lamp oil")  # type: ignore[arg-type]
+
+    kwargs = interaction.edit_original_response.await_args.kwargs
+    assert [file.filename for file in kwargs["attachments"]] == ["morshu.wav"]
+
+
+def test_log_names_a_server_that_installed_morshu() -> None:
+    interaction = make_interaction()
+    interaction.guild.__str__.return_value = "Hyrule"
+    interaction.is_guild_integration.return_value = True
+
+    assert _place(interaction) == "Hyrule"
+
+
+def test_log_names_no_server_of_a_user_install() -> None:
+    interaction = make_interaction()
+    interaction.guild.__str__.return_value = "Hyrule"
+    interaction.is_guild_integration.return_value = False
+
+    assert _place(interaction) == "a DM or a user install"
 
 
 @pytest.mark.parametrize("output", ["wav", "video"])

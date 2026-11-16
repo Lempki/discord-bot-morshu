@@ -6,13 +6,14 @@ This is a Discord bot that generates speech in Morshu's voice by calling the api
 
 | Command | Description |
 |---|---|
-| `/generate <format> <text>` | Generates audio or video from the given text and sends it as a file attachment. `format` choices are `WAV audio` and `MP4 video`. `text` holds up to 500 characters. The text shows above the file exactly as typed, so moderators and moderation bots can see what was generated. It never pings anyone. A result over the server's upload limit is not sent. |
+| `/generate <format> <text>` | Generates audio or video from the given text and sends it as a file attachment. `format` choices are `WAV audio` and `MP4 video`. `text` holds up to 500 characters. The text shows above the file exactly as typed, so moderators and moderation bots can see what was generated. It never pings anyone. A result over the upload limit of the server or DM is not sent. |
 | `/morshu <text>` | Joins your current voice channel and plays the generated audio. `text` holds up to 500 characters. The text also shows in the chat exactly as typed, without pinging anyone, so moderators can see what was spoken. The bot leaves on its own when it is alone or after 10 minutes of silence. While it plays in another voice channel, it answers that it is busy instead of moving. |
 | `/help` | Shows a short guide to Morshu and the commands you can use, with links to the privacy policy and terms, in an embed that only you see. A message that only mentions Morshu gets a short reply with a button that opens the same guide, and the reply deletes itself after a minute. |
 | `/about` | Shows the bot's version, how long it has been online, its response time, and a link to its source code, in a reply that only you see. |
 
 These are the commands of the default cogs, `help` and `morshu`.
-`/generate` and `/morshu` work only in servers.
+`/morshu` works only in servers that added the bot.
+`/generate` also works in the bot's DMs, and anywhere on Discord for someone who added the bot to their account.
 Each member can run each of them twice within 20 seconds, because speech takes the most CPU of anything the bot does.
 
 Adding `voice` to `COGS_TO_LOAD` adds `/voice join`, `/voice leave`, and `/voice stop`, which stops a speech that plays.
@@ -262,7 +263,7 @@ The base configuration variables are documented in the [discord-bot-template](ht
 | Variable | Default | Description |
 |---|---|---|
 | `COGS_TO_LOAD` | `help` | Cogs to load at startup. `.env.template` sets `help,morshu`, which is this bot's default set. Use `help,voice,morshu` to add voice channel commands, or `help,voice,media,info,morshu,admin,moderation,events` for the full feature set. The `media` cog also needs `API_MEDIA_URL` and `API_MEDIA_SECRET`. |
-| `INSTALL_TO` | `servers` | Where people can install the bot: `servers`, `users`, or `servers,users`. `/generate`, `/morshu`, and the commands of the other cogs work only in servers that installed the bot, so a user install offers only `/help` and `/about`, and `users` alone stops the bot at startup. See [Installing to user accounts](https://github.com/Lempki/discord-bot-template#installing-to-user-accounts). |
+| `INSTALL_TO` | `servers` | Where people can install the bot: `servers`, `users`, or `servers,users`. A user install offers `/generate`, `/help`, and `/about`. `/morshu` and the commands of the other cogs work only in servers that installed the bot, so `users` alone stops the bot at startup, because the `morshu` cog also holds `/morshu`. See [Installing to user accounts](https://github.com/Lempki/discord-bot-template#installing-to-user-accounts). |
 | `LOCALE` | `silent` | The fallback language for users whose Discord language the bot does not speak. Built-in values are `en` and `fi`. `silent` mutes public replies to commands, such as generation progress and public error notices. Private replies, such as `/help`, admin and moderator replies, and private error messages, are still sent because only the person who ran the command sees them. |
 | `API_MORSHU_URL` | Not set | Base URL of the api-morshu service. `.env.template` sets `http://localhost:8002`. Required when the `morshu` cog is loaded, and the bot stops at startup without it. `compose.stack.yml` overrides this inside the stack. |
 | `API_MORSHU_SECRET` | Not set | Bearer token for the api-morshu service. Must match `API_SECRET` in the service configuration, which requires at least 16 characters. |
