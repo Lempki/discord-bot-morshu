@@ -270,6 +270,7 @@ The base configuration variables are documented in the [discord-bot-template](ht
 | `HEARTBEAT_URL` | Not set | The ping URL of a heartbeat service, such as healthchecks.io, which alerts you when the bot stops reporting that it is online. See [Offline alerts](#offline-alerts). |
 | `BACKUP_COPY_FOLDER` | Not set | A folder that receives a copy of each backup, such as one that syncs to the cloud. See [Backups](#backups). |
 | `UPDATE_WEBHOOK_URL` | Not set | A Discord webhook that hears when a nightly update installs a new release or fails. It works like a password. |
+| `DISPLAY_NAME` | `Morshu` | The name that update notices in Discord call the project by, such as `OSRS Market Bot`. |
 
 ## Project structure
 
